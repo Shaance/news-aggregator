@@ -2,7 +2,7 @@ import { Article } from "../@types/Article";
 import { load } from "cheerio";
 import { clean } from "../helpers/String";
 
-export async function parse(html: string): Promise<Array<Article>> {
+export function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
   const links = $("a").toArray().filter(elem => elem.attribs['data-post-id']);

@@ -14,7 +14,7 @@ app.get('/source/dev-to/:category?', async (req, res, next) => {
     const category = getCategory(req.params.category);
     const url = category ? baseUrl + '/' + category : baseUrl;
     const html = await request(url);
-    res.send(await parseDevto(html, baseUrl));
+    res.send(parseDevto(html, baseUrl));
   } catch (error) {
     next(error);
   }
@@ -24,7 +24,7 @@ app.get('/source/netflix', async (_, res, next) => {
   try {
     const url = 'https://netflixtechblog.com/';
     const html = await request(url);
-    res.send(await parseNetflix(html));
+    res.send(parseNetflix(html));
   } catch (error) {
     next(error);
   }
@@ -34,17 +34,17 @@ app.get('/source/uber', async (_, res, next) => {
   try {
     const url = 'https://eng.uber.com/';
     const html = await request(url);
-    res.send(await parseUber(html));
+    res.send(parseUber(html));
   } catch (error) {
     next(error);
   }
 });
 
-app.get('/info/source/dev-to/category/keys', async (_, res) => {
+app.get('/info/source/dev-to/category/keys', (_, res) => {
   res.send(getCategoryKeys());
 });
 
-app.get('/info/source/keys', async (_, res) => {
+app.get('/info/source/keys', (_, res) => {
   res.send(['dev-to', 'netflix', 'uber']);
 });
 

@@ -1,7 +1,7 @@
 import { Article } from "../@types/Article";
 import { load } from "cheerio";
 
-export async function parse(html: string): Promise<Array<Article>> {
+export function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
   const data = $("h3.entry-title.td-module-title").toArray().map(datum => datum.children[0]);

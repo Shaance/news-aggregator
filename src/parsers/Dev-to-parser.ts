@@ -2,7 +2,7 @@ import { Article } from "../@types/Article";
 import { load } from "cheerio";
 import { capitalize, clean } from "../helpers/String";
 
-export async function parse(html: string, url: string): Promise<Array<Article>> {
+export function parse(html: string, url: string): Article[] {
     const results: Article[] = [];
     const $ = load(html);
     const metadata = $("time").toArray();
