@@ -6,7 +6,7 @@ const rewire = require("rewire");
 const pathToSample = path.join('src', 'tests', 'res', 'dev-to-sample.html');
 const encoding = 'UTF-8';
 
-const rewired = rewire("../../devto/Dev-to-parser");
+const rewired = rewire("../../parsers/Dev-to-parser");
 
 describe('Dev-to-parser', function () {
   it('parse function should return 4', async function () {

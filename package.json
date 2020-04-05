@@ -1,12 +1,12 @@
 {
   "name": "news-aggregator",
   "version": "1.0.0",
-  "description": "",
+  "description": "news-aggregator API",
   "main": "index.js",
   "scripts": {
     "start-dev": "ts-node-dev --respawn src/index.ts",
-    "start": "ts-node src/index.ts",
-    "build": "tsc",
+    "start": "node out/index.js",
+    "build": "tsc -p .",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
     "coverage": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test"
   },

@@ -1,6 +1,6 @@
 import { Article } from "../@types/Article";
 import { load } from "cheerio"
-import { capitalize } from "../helpers/String";
+import { capitalize, clean } from "../helpers/String";
 
 export async function parse(html: string, url: string): Promise<Array<Article>> {
     const results: Article[] = [];
@@ -42,14 +42,6 @@ function extractTitleFromUrl(url: string) {
         res.pop(); // last id part
         res[0] = capitalize(res[0]);
         return res.join(" ");
-    }
-    return '';
-}
-
-// remove newlines and trim
-function clean(src: string | undefined) {
-    if (src) {
-        return src.replace(/\n|・/g, "").trim()
     }
     return '';
 }
