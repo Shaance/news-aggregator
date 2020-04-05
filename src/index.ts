@@ -1,5 +1,5 @@
-import { parse } from "./devto/Dev-to-parser"
-import { getCategory } from "./devto/Dev-to-categories"
+import { parse } from "./parsers/Dev-to-parser"
+import { getCategory, getCategoryKeys } from "./helpers/Dev-to-categories"
 import express from "express";
 import request from "request-promise";
 
@@ -16,6 +16,10 @@ app.get('/source/dev-to/:category?', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.get('/info/source/dev-to/category/keys', async (_, res) => {
+  res.send(getCategoryKeys());
 });
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`))

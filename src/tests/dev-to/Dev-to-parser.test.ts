@@ -1,4 +1,4 @@
-import { parse } from "../../devto/Dev-to-parser";
+import { parse } from "../../parsers/Dev-to-parser";
 import fs from "fs";
 import path from "path";
 

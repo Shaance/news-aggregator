@@ -6,7 +6,6 @@ export async function parse(html: string, url: string): Promise<Array<Article>> 
     const results: Article[] = [];
     const $ = load(html);
     const metadata = $("time").toArray();
-
     const titles = $("h3").toArray()
         .filter(h3 => h3.parent.attribs.class === 'content-wrapper' || h3.parent.attribs.class === 'content')
         .map(h3 => h3.children[0].data);
