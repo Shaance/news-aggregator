@@ -18,4 +18,4 @@ app.get('/source/dev-to/:category?', async (req, res, next) => {
   }
 });
 
-app.listen(port, () => console.log(`Blablabla app listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
