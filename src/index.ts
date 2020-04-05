@@ -48,4 +48,4 @@ app.get('/info/source/keys', async (_, res) => {
   res.send(['dev-to', 'netflix', 'uber']);
 });
 
-app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`App listening at http://localhost:${port}`));

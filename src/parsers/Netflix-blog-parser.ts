@@ -7,10 +7,11 @@ export async function parse(html: string): Promise<Array<Article>> {
   const $ = load(html);
   const links = $("a").toArray().filter(elem => elem.attribs['data-post-id']);
   const dates = $("time").toArray();
-  const titles = $(".u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis").toArray();
+  const titles = $(".u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis")
+    .toArray().map(title => title.children[0]);
   titles.forEach((title, idx) => {
     results.push({
-      title: clean(title.children[0].data as string),
+      title: clean(title.data as string),
       url: links[idx].attribs.href,
       date: new Date(dates[idx].attribs.datetime),
       source: 'netflix'

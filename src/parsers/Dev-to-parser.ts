@@ -1,5 +1,5 @@
 import { Article } from "../@types/Article";
-import { load } from "cheerio"
+import { load } from "cheerio";
 import { capitalize, clean } from "../helpers/String";
 
 export async function parse(html: string, url: string): Promise<Array<Article>> {
