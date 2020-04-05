@@ -19,10 +19,6 @@ app.get('/source/dev-to/:category?', async (req, res, next) => {
   }
 });
 
-app.get('/info/source/dev-to/category/keys', async (_, res) => {
-  res.send(getCategoryKeys());
-});
-
 app.get('/source/netflix', async (_, res, next) => {
   try {
     const url = 'https://netflixtechblog.com/';
@@ -31,6 +27,14 @@ app.get('/source/netflix', async (_, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.get('/info/source/dev-to/category/keys', async (_, res) => {
+  res.send(getCategoryKeys());
+});
+
+app.get('/info/source/keys', async (_, res) => {
+  res.send(['dev-to', 'netflix']);
 });
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
