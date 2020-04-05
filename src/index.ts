@@ -12,7 +12,7 @@ app.get('/source/dev-to/:category?', async (req, res, next) => {
     const category = getCategory(req.params.category);
     const url = category ? baseUrl + '/' + category : baseUrl;
     const html = await request(url);
-    res.send(await parse(html, url));
+    res.send(await parse(html, baseUrl));
   } catch (error) {
     next(error);
   }
