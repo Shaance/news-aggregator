@@ -12,7 +12,14 @@ export function getCategory(key: string): string {
   }
   return '';
 }
-
+/**
+ * @swagger
+ *  definitions:
+ *    StringArray:
+ *      type: array
+ *      items:
+ *        type: string
+ */
 export function getCategoryKeys(): Array<string> {
   return Array.from(categories.keys());
 }
