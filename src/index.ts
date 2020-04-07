@@ -6,9 +6,15 @@ import express from 'express';
 import request from 'request-promise';
 import { serve, setup } from 'swagger-ui-express';
 import { swaggerDocs } from './config/SwaggerConfig';
+import cron from 'node-cron';
+import { Article } from './@types/Article';
 
 const app = express();
+const sourceApi = '/api/v1/source'
+// TODO make port and refreshFrequency configurable
 const port = 3000;
+const refreshFrequency = "*/30"; // in minutes
+const allArticles = new Map<String, Article[]>();
 
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
 
@@ -25,7 +31,13 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        required: false
  *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/dev-to/categories'.
  *                     Unknown / no category results in fetching from dev.to homepage (no category) 
- *    description: Fetch articles from dev-to website, should return an array of Article 
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    description: Fetch articles from dev-to website
  *    responses:
  *      '200':
  *        description: Successful response 
@@ -34,13 +46,12 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *      '500':
  *        description: Error while connecting to the website
  */
-app.get('/api/v1/source/dev-to', async (req, res, next) => {
+app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
   try {
-    const baseUrl = 'https://dev.to';
-    const category = getCategory(req.query.category);
-    const url = category ? baseUrl + '/' + category : baseUrl;
-    const html = await request(url);
-    res.json(parseDevto(html, baseUrl));
+    handleDevToRequest(req.query.forceRefresh === 'true', req.query.category).then(articles => {
+      res.json(articles);
+    });
+    // res.json(handleDevToRequest(req.query.category));
   } catch (error) {
     next(error);
   }
@@ -51,6 +62,13 @@ app.get('/api/v1/source/dev-to', async (req, res, next) => {
  * 
  * /api/v1/source/netflix:
  *  get:
+ *    parameters:
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
  *    description: Fetch articles from Netflix technology blog, should return an array of Article
  *    responses:
  *      '200':
@@ -60,11 +78,11 @@ app.get('/api/v1/source/dev-to', async (req, res, next) => {
  *      '500':
  *        description: Error while connecting to the website
  */
-app.get('/api/v1/source/netflix', async (_, res, next) => {
+app.get(`${sourceApi}/netflix`, async (req, res, next) => {
   try {
-    const url = 'https://netflixtechblog.com/';
-    const html = await request(url);
-    res.json(parseNetflix(html));
+    handleNetflixRequest(req.query.forceRefresh === 'true').then(articles => {
+      res.json(articles);
+    });
   } catch (error) {
     next(error);
   }
@@ -75,6 +93,13 @@ app.get('/api/v1/source/netflix', async (_, res, next) => {
  * 
  * /api/v1/source/uber:
  *  get:
+ *    parameters:
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
  *    description: Fetch articles from Uber engineering blog, should return an array of Article 
  *    responses:
  *      '200':
@@ -85,11 +110,11 @@ app.get('/api/v1/source/netflix', async (_, res, next) => {
  *      '500':
  *        description: Error while connecting to the website
  */
-app.get('/api/v1/source/uber', async (_, res, next) => {
+app.get(`${sourceApi}/uber`, async (req, res, next) => {
   try {
-    const url = 'https://eng.uber.com/';
-    const html = await request(url);
-    res.send(parseUber(html));
+    handleUberRequest(req.query.forceRefresh === 'true').then(articles => {
+      res.json(articles);
+    });
   } catch (error) {
     next(error);
   }
@@ -130,7 +155,69 @@ app.get('/api/v1/info/source/dev-to/categories', (_, res) => {
  *        description: Internal server error
  */
 app.get('/api/v1/info/sources', (_, res) => {
-  res.json(['dev-to', 'netflix', 'uber']);
+  res.json(getAllSourceKeys());
 });
 
-app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
+app.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`);
+  updateAllSources();
+});
+
+
+cron.schedule(`${refreshFrequency} * * * *`, async () => {
+  console.log('Refreshing all articles');
+  updateAllSources();
+});
+
+async function updateAllSources() {
+  handleDevToRequest(true);
+  getCategoryKeys().forEach(category => handleDevToRequest(true, category));
+  handleNetflixRequest(true);
+  handleUberRequest(true);
+}
+
+async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string) {
+  let sourceKey = 'dev-to';
+  if (forceRefresh) {
+    const baseUrl = 'https://dev.to';
+    const category = getCategory(queryCategory);
+    console.log(`Force refresh articles for ${sourceKey} with category ${category}.`);
+    sourceKey += category;
+    const url = category ? baseUrl + '/' + category : baseUrl;
+    const html = await request(url);
+    const parsedArticles = parseDevto(html, baseUrl);
+    allArticles.set(sourceKey, parsedArticles);
+    return parsedArticles;
+  }
+  return allArticles.get(sourceKey);
+}
+
+async function handleNetflixRequest(forceRefresh: boolean) {
+  const sourceKey = 'netflix';
+  if (forceRefresh) {
+    console.log(`Force refresh articles for ${sourceKey}.`);
+    const url = 'https://netflixtechblog.com/';
+    const html = await request(url);
+    const parsedArticles = parseNetflix(html);
+    allArticles.set(sourceKey, parsedArticles);
+    return parsedArticles;
+  }
+  return allArticles.get(sourceKey);
+}
+
+async function handleUberRequest(forceRefresh: boolean) {
+  const sourceKey = 'uber';
+  if (forceRefresh) {
+    console.log(`Force refresh articles for ${sourceKey}.`);
+    const url = 'https://eng.uber.com/';
+    const html = await request(url);
+    const parsedArticles = parseUber(html);
+    allArticles.set(sourceKey, parsedArticles);
+    return parsedArticles;
+  }
+  return allArticles.get(sourceKey);
+}
+
+function getAllSourceKeys() {
+  return ['dev-to', 'netflix', 'uber'];
+}

@@ -6,12 +6,13 @@ const categories = new Map([
   ['latest', 'latest'],
 ]);
 
-export function getCategory(key: string): string {
-  if (categories.has(key)) {
+export function getCategory(key: string | undefined): string {
+  if (key && categories.has(key)) {
     return categories.get(key) as string;
   }
   return '';
 }
+
 /**
  * @swagger
  *  definitions:
