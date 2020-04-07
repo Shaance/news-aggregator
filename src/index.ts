@@ -12,7 +12,7 @@ import { Article } from './@types/Article';
 const app = express();
 const sourceApi = '/api/v1/source'
 // TODO make port and refreshFrequency configurable
-const port = 3000;
+const port = 3001;
 const refreshFrequency = "*/30"; // in minutes
 const allArticles = new Map<String, Article[]>();
 
@@ -51,7 +51,6 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
     handleDevToRequest(req.query.forceRefresh === 'true', req.query.category).then(articles => {
       res.json(articles);
     });
-    // res.json(handleDevToRequest(req.query.category));
   } catch (error) {
     next(error);
   }
