@@ -49,13 +49,10 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  try {
-    handleDevToRequest(req.query.forceRefresh === 'true', req.query.category).then(articles => {
-      res.json(articles);
-    });
-  } catch (error) {
-    next(error);
-  }
+  handleDevToRequest(req.query.forceRefresh === 'true', req.query.category)
+  .then(articles => {
+    res.json(articles);
+  }).catch(error => next(error));
 });
 
 /**
@@ -80,13 +77,9 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/netflix`, async (req, res, next) => {
-  try {
-    handleNetflixRequest(req.query.forceRefresh === 'true').then(articles => {
-      res.json(articles);
-    });
-  } catch (error) {
-    next(error);
-  }
+  handleNetflixRequest(req.query.forceRefresh === 'true').then(articles => {
+    res.json(articles);
+  }).catch(error => next(error));
 });
 
 /**
@@ -112,13 +105,9 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
-  try {
-    handleUberRequest(req.query.forceRefresh === 'true').then(articles => {
-      res.json(articles);
-    });
-  } catch (error) {
-    next(error);
-  }
+  handleUberRequest(req.query.forceRefresh === 'true').then(articles => {
+    res.json(articles);
+  }).catch(error => next(error));
 });
 
 /**
