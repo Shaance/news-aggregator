@@ -8,6 +8,7 @@ import { serve, setup } from 'swagger-ui-express';
 import { swaggerDocs } from './config/SwaggerConfig';
 import cron from 'node-cron';
 import { Article } from './@types/Article';
+import cors from 'cors';
 
 const app = express();
 const sourceApi = '/api/v1/source'
@@ -16,6 +17,7 @@ const port = 3001;
 const refreshFrequency = "*/30"; // in minutes
 const allArticles = new Map<String, Article[]>();
 
+app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
 
 /**
