@@ -52,10 +52,10 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  handleDevToRequest(req.query.forceRefresh === 'true', req.query.category)
-    .then(articles => {
-      res.json(articles);
-    }).catch(error => next(error));
+  handleDevToRequest(req.query.forceRefresh === 'true', req.query.category as string)
+  .then(articles => {
+    res.json(articles);
+  }).catch(error => next(error));
 });
 
 /**
