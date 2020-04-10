@@ -21,7 +21,7 @@ describe('Netflix-blog-parser', function () {
           '-fa68105067cd?source=collection_home---4------0-----------------------',
         title: 'Bringing 4K and HDR to Anime at Netflix with Sol Levante',
         date: new Date("2020-04-02T07:01:00.929Z"),
-        source: 'netflix'
+        source: 'Netflix'
       }
       expect(result[0]).toEqual(expected);
     });

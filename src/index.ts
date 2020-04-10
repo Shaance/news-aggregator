@@ -1,6 +1,7 @@
 import { parse as parseDevto } from './parsers/Dev-to-parser';
 import { parse as parseNetflix } from './parsers/Netflix-blog-parser';
 import { parse as parseUber } from './parsers/Uber-blog-parser';
+import { parse as parseAndroidPolice, getPagesFromArticleNumbers } from './parsers/Android-police-parser';
 import { getCategory, getCategoryKeys } from './helpers/Dev-to-categories';
 import express from 'express';
 import request from 'request-promise';
@@ -15,6 +16,8 @@ const sourceApi = '/api/v1/source'
 // TODO make port and refreshFrequency configurable
 const port = 3001;
 const refreshFrequency = "*/30"; // in minutes
+
+// TODO database + cache instead of having everything in memory
 const allArticles = new Map<String, Article[]>();
 
 app.use(cors());
@@ -50,9 +53,9 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
   handleDevToRequest(req.query.forceRefresh === 'true', req.query.category)
-  .then(articles => {
-    res.json(articles);
-  }).catch(error => next(error));
+    .then(articles => {
+      res.json(articles);
+    }).catch(error => next(error));
 });
 
 /**
@@ -113,6 +116,39 @@ app.get(`${sourceApi}/uber`, async (req, res, next) => {
 /**
  * @swagger
  * 
+ * /api/v1/source/androidpolice:
+ *  get:
+ *    parameters:
+ *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from AndroidPolice
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    responses:
+ *      '200':
+ *        description: Successful response 
+ *        schema:
+ *          type: array
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
+  handleAndroidPoliceRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50).then(articles => {
+    res.json(articles);
+  }).catch(error => next(error));
+});
+
+/**
+ * @swagger
+ * 
  * /api/v1/info/source/dev-to/categories:
  *  get:
  *    description: Fetch the categories we can fetch from dev-to
@@ -160,10 +196,11 @@ cron.schedule(`${refreshFrequency} * * * *`, async () => {
 });
 
 async function updateAllSources() {
-  handleDevToRequest(true);
+  handleDevToRequest(true).catch(err => console.error(err));
   getCategoryKeys().forEach(category => handleDevToRequest(true, category));
-  handleNetflixRequest(true);
-  handleUberRequest(true);
+  handleNetflixRequest(true).catch(err => console.error(err));
+  handleUberRequest(true).catch(err => console.error(err));
+  handleAndroidPoliceRequest(true, 50).catch(err => console.error(err));
 }
 
 async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string) {
@@ -183,31 +220,36 @@ async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string)
 }
 
 async function handleNetflixRequest(forceRefresh: boolean) {
-  const sourceKey = 'netflix';
-  if (forceRefresh) {
-    console.log(`Force refresh articles for ${sourceKey}.`);
-    const url = 'https://netflixtechblog.com/';
-    const html = await request(url);
-    const parsedArticles = parseNetflix(html);
-    allArticles.set(sourceKey, parsedArticles);
-    return parsedArticles;
-  }
-  return allArticles.get(sourceKey);
+  return handleSourceRequest('netflix', ['https://netflixtechblog.com/'], parseNetflix, forceRefresh);
 }
 
 async function handleUberRequest(forceRefresh: boolean) {
-  const sourceKey = 'uber';
+  return handleSourceRequest('uber', ['https://eng.uber.com/'], parseUber, forceRefresh);
+}
+
+async function handleAndroidPoliceRequest(forceRefresh: boolean, numberOfArticles: number) {
+  const sourceKey = 'androidpolice';
+  // @ts-ignore
+  if (allArticles.has(sourceKey) && allArticles.get(sourceKey).length < numberOfArticles) {
+    forceRefresh = true;  
+  }
+  return handleSourceRequest(sourceKey, getPagesFromArticleNumbers('https://www.androidpolice.com/', numberOfArticles), parseAndroidPolice, forceRefresh, numberOfArticles);
+}
+
+async function handleSourceRequest(sourceKey: string, urls: string[], parseFunction: (html: string) => Article[], forceRefresh: boolean, numberOfArticles?: number) {
   if (forceRefresh) {
     console.log(`Force refresh articles for ${sourceKey}.`);
-    const url = 'https://eng.uber.com/';
-    const html = await request(url);
-    const parsedArticles = parseUber(html);
+    const parsedArticles: Article[] = [];
+    const htmls = await Promise.all(urls.map(url => request(url)));
+    htmls.forEach(html => {
+      parsedArticles.push(...parseFunction(html));
+    });
     allArticles.set(sourceKey, parsedArticles);
-    return parsedArticles;
+    return numberOfArticles ? parsedArticles.slice(0, numberOfArticles) : parsedArticles;
   }
-  return allArticles.get(sourceKey);
+  return numberOfArticles ? allArticles.get(sourceKey)?.slice(0, numberOfArticles) : allArticles.get(sourceKey);
 }
 
 function getAllSourceKeys() {
-  return ['dev-to', 'netflix', 'uber'];
+  return ['dev-to', 'netflix', 'uber', 'androidpolice'];
 }

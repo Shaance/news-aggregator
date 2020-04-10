@@ -12,7 +12,7 @@ export function parse(html: string): Article[] {
       url: datum.attribs.href,
       title: datum.attribs.title,
       date: new Date(dates[idx].attribs.datetime),
-      source: 'uber'
+      source: 'Uber'
     });
   });
 

@@ -14,7 +14,7 @@ export function parse(html: string): Article[] {
       title: clean(title.data as string),
       url: links[idx].attribs.href,
       date: new Date(dates[idx].attribs.datetime),
-      source: 'netflix'
+      source: 'Netflix'
     });
   });
   return results;

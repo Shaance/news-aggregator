@@ -5,7 +5,7 @@ export const capitalize = (s: string) => {
 // remove newlines and trim
 export function clean(src: string | undefined) {
   if (src) {
-    return src.replace(/\n|・/g, "").trim();
+    return src.replace(/\n|・/g, "").replace(/\s+/g,' ').trim();
   }
   return '';
 }

@@ -25,7 +25,7 @@ export function parse(html: string, url: string): Article[] {
             title: title !== '' ? title : extractTitleFromUrl(elem.attribs.href),
             author: author,
             date: date,
-            source: 'dev.to'
+            source: 'Dev.to'
         });
     });
     return results;
