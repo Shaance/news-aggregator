@@ -10,12 +10,12 @@ import { swaggerDocs } from './config/SwaggerConfig';
 import cron from 'node-cron';
 import { Article } from './@types/Article';
 import cors from 'cors';
+import config from "./config/EnvConfig";
 
 const app = express();
 const sourceApi = '/api/v1/source'
-// TODO make port and refreshFrequency configurable
-const port = 3001;
-const refreshFrequency = "*/30"; // in minutes
+const port = config.port;
+const refreshFrequency = config.refreshFrequency; // in minutes
 
 // TODO database + cache instead of having everything in memory
 const allArticles = new Map<String, Article[]>();
