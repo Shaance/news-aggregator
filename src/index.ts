@@ -12,13 +12,13 @@ import { Article } from './@types/Article';
 import cors from 'cors';
 import config from "./config/EnvConfig";
 
+// TODO use logger instead of console.log
+
 const app = express();
 const sourceApi = '/api/v1/source'
 const port = config.port;
 const refreshFrequency = config.refreshFrequency; // in minutes
-
-// TODO database + cache instead of having everything in memory
-const allArticles = new Map<String, Article[]>();
+const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
 
 app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
@@ -53,9 +53,9 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
   handleDevToRequest(req.query.forceRefresh === 'true', req.query.category as string)
-  .then(articles => {
-    res.json(articles);
-  }).catch(error => next(error));
+    .then(articles => {
+      res.json(articles);
+    }).catch(error => next(error));
 });
 
 /**
@@ -229,9 +229,8 @@ async function handleUberRequest(forceRefresh: boolean) {
 
 async function handleAndroidPoliceRequest(forceRefresh: boolean, numberOfArticles: number) {
   const sourceKey = 'androidpolice';
-  // @ts-ignore
-  if (allArticles.has(sourceKey) && allArticles.get(sourceKey).length < numberOfArticles) {
-    forceRefresh = true;  
+  if (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles) {
+    forceRefresh = true;
   }
   return handleSourceRequest(sourceKey, getPagesFromArticleNumbers('https://www.androidpolice.com/', numberOfArticles), parseAndroidPolice, forceRefresh, numberOfArticles);
 }
