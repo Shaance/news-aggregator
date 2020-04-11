@@ -2,7 +2,9 @@ import { Article } from "../@types/Article";
 import { load } from "cheerio";
 import { capitalize, clean } from "../helpers/String";
 
-export function parse(html: string, url: string): Article[] {
+const url = 'https://dev.to';
+
+export function parse(html: string): Article[] {
     const results: Article[] = [];
     const $ = load(html);
     const metadata = $("time").toArray();

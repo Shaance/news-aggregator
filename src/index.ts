@@ -205,18 +205,11 @@ async function updateAllSources() {
 
 async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string) {
   let sourceKey = 'dev-to';
-  if (forceRefresh) {
-    const baseUrl = 'https://dev.to';
-    const category = getCategory(queryCategory);
-    console.log(`Force refresh articles for ${sourceKey} with category ${category}.`);
-    sourceKey += category;
-    const url = category ? baseUrl + '/' + category : baseUrl;
-    const html = await request(url);
-    const parsedArticles = parseDevto(html, baseUrl);
-    allArticles.set(sourceKey, parsedArticles);
-    return parsedArticles;
-  }
-  return allArticles.get(sourceKey);
+  const baseUrl = 'https://dev.to';
+  const category = getCategory(queryCategory);
+  sourceKey += category;
+  const url = category ? baseUrl + '/' + category : baseUrl;
+  return handleSourceRequest(sourceKey, [url], parseDevto, forceRefresh);
 }
 
 async function handleNetflixRequest(forceRefresh: boolean) {

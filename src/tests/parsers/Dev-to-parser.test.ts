@@ -11,16 +11,16 @@ const rewired = rewire("../../parsers/Dev-to-parser");
 describe('Dev-to-parser', function () {
   it('parse function should return 4', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data, "toto");
+      let result = await parse(data);
       expect(result.length).toBe(4);
     });
   });
 
   it('parse function should return Article object with correct info', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data, "toto");
+      let result = await parse(data);
       const expected = {
-        url: 'toto/monicafidalgo/how-to-host-a-website-on-google-drive-for-free-1ejk',
+        url: 'https://dev.to/monicafidalgo/how-to-host-a-website-on-google-drive-for-free-1ejk',
         title: 'How to Host A Website On Google Drive for Free',
         author: '🦊 Atomic Fox',
         date: new Date("2020-04-04T17:14:56Z"),
