@@ -8,14 +8,14 @@ const encoding = 'UTF-8';
 describe('Netflix-blog-parser', function () {
   it('parse function should return 3', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data);
+      let result = parse(data);
       expect(result.length).toBe(3);
     });
   });
 
   it('parse function should return Article object with correct info', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data);
+      let result = parse(data);
       const expected = {
         url: 'https://netflixtechblog.com/bringing-4k-and-hdr-to-anime-at-netflix-with-sol-levante' +
           '-fa68105067cd?source=collection_home---4------0-----------------------',

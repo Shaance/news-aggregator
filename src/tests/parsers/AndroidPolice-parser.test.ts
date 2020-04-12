@@ -8,14 +8,14 @@ const encoding = 'UTF-8';
 describe('AndroidPolice-blog-parser', function () {
   it('parse function should return 2', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data);
+      let result = parse(data);
       expect(result.length).toBe(2);
     });
   });
 
   it('parse function should return Article object with correct info', async function () {
     fs.readFile(pathToSample, encoding, async (_, data) => {
-      let result = await parse(data);
+      let result = parse(data);
       const expected = {
         url: 'https://www.androidpolice.com/2020/04/10/google-completely-ruined-shared-folders-in-drive/',
         title: 'Google completely ruined shared folders in Drive (Update: Workaround, Google shares longterm plan)',

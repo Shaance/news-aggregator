@@ -1,16 +1,11 @@
-import { parse as parseDevto } from './parsers/Dev-to-parser';
-import { parse as parseNetflix } from './parsers/Netflix-blog-parser';
-import { parse as parseUber } from './parsers/Uber-blog-parser';
-import { parse as parseAndroidPolice, getPagesFromArticleNumbers } from './parsers/Android-police-parser';
-import { getCategory, getCategoryKeys } from './helpers/Dev-to-categories';
+import { getDevToCategoryKeys, getHackerNewsCategoryKeys } from './helpers/WebsiteCategories';
 import express from 'express';
-import request from 'request-promise';
 import { serve, setup } from 'swagger-ui-express';
 import { swaggerDocs } from './config/SwaggerConfig';
 import cron from 'node-cron';
-import { Article } from './@types/Article';
 import cors from 'cors';
 import config from "./config/EnvConfig";
+import { handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest } from './sourceHandler';
 
 // TODO use logger instead of console.log
 
@@ -18,7 +13,6 @@ const app = express();
 const sourceApi = '/api/v1/source'
 const port = config.port;
 const refreshFrequency = config.refreshFrequency; // in minutes
-const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
 
 app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
@@ -53,9 +47,8 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
   handleDevToRequest(req.query.forceRefresh === 'true', req.query.category as string)
-    .then(articles => {
-      res.json(articles);
-    }).catch(error => next(error));
+    .then(articles => res.json(articles))
+    .catch(error => next(error));
 });
 
 /**
@@ -80,9 +73,9 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/netflix`, async (req, res, next) => {
-  handleNetflixRequest(req.query.forceRefresh === 'true').then(articles => {
-    res.json(articles);
-  }).catch(error => next(error));
+  handleNetflixRequest(req.query.forceRefresh === 'true')
+  .then(articles => res.json(articles))
+  .catch(error => next(error));
 });
 
 /**
@@ -108,9 +101,9 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
-  handleUberRequest(req.query.forceRefresh === 'true').then(articles => {
-    res.json(articles);
-  }).catch(error => next(error));
+  handleUberRequest(req.query.forceRefresh === 'true')
+  .then(articles =>res.json(articles))
+  .catch(error => next(error));
 });
 
 /**
@@ -141,9 +134,49 @@ app.get(`${sourceApi}/uber`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
-  handleAndroidPoliceRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50).then(articles => {
-    res.json(articles);
-  }).catch(error => next(error));
+  handleAndroidPoliceRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50)
+  .then(articles => res.json(articles))
+  .catch(error => next(error));
+});
+
+/**
+ * @swagger
+ * 
+ * /api/v1/source/hackernews:
+ *  get:
+ *    parameters:
+ *      - in: query
+ *        name: category
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/hackernews/categories'.
+ *                     Unknown / no category results in fetching from best stories category 
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from HackerNews
+ *    description: Fetch articles from dev-to website
+ *    responses:
+ *      '200':
+ *        description: Successful response 
+ *        schema:
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
+  handleHackerNewsRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50, req.query.category)
+  .then(articles => res.json(articles))
+  .catch(error => next(error));
 });
 
 /**
@@ -162,7 +195,26 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
  *        description: Internal server error
  */
 app.get('/api/v1/info/source/dev-to/categories', (_, res) => {
-  res.json(getCategoryKeys());
+  res.json(getDevToCategoryKeys());
+});
+
+/**
+ * @swagger
+ * 
+ * /api/v1/info/source/hackernews/categories:
+ *  get:
+ *    description: Fetch the categories we can fetch from hackernews
+ *    responses:
+ *      '200':
+ *        description: Successful response 
+ *        schema:
+ *          type: array
+ *          $ref: '#/definitions/StringArray'
+ *      '500':
+ *        description: Internal server error
+ */
+app.get('/api/v1/info/source/hackernews/categories', (_, res) => {
+  res.json(getHackerNewsCategoryKeys());
 });
 
 /**
@@ -197,51 +249,13 @@ cron.schedule(`${refreshFrequency} * * * *`, async () => {
 
 async function updateAllSources() {
   handleDevToRequest(true).catch(err => console.error(err));
-  getCategoryKeys().forEach(category => handleDevToRequest(true, category));
+  getDevToCategoryKeys().forEach(category => handleDevToRequest(true, category).catch(err => console.error(err)));
   handleNetflixRequest(true).catch(err => console.error(err));
   handleUberRequest(true).catch(err => console.error(err));
   handleAndroidPoliceRequest(true, 50).catch(err => console.error(err));
-}
-
-async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string) {
-  let sourceKey = 'dev-to';
-  const baseUrl = 'https://dev.to';
-  const category = getCategory(queryCategory);
-  sourceKey += category;
-  const url = category ? baseUrl + '/' + category : baseUrl;
-  return handleSourceRequest(sourceKey, [url], parseDevto, forceRefresh);
-}
-
-async function handleNetflixRequest(forceRefresh: boolean) {
-  return handleSourceRequest('netflix', ['https://netflixtechblog.com/'], parseNetflix, forceRefresh);
-}
-
-async function handleUberRequest(forceRefresh: boolean) {
-  return handleSourceRequest('uber', ['https://eng.uber.com/'], parseUber, forceRefresh);
-}
-
-async function handleAndroidPoliceRequest(forceRefresh: boolean, numberOfArticles: number) {
-  const sourceKey = 'androidpolice';
-  if (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles) {
-    forceRefresh = true;
-  }
-  return handleSourceRequest(sourceKey, getPagesFromArticleNumbers('https://www.androidpolice.com/', numberOfArticles), parseAndroidPolice, forceRefresh, numberOfArticles);
-}
-
-async function handleSourceRequest(sourceKey: string, urls: string[], parseFunction: (html: string) => Article[], forceRefresh: boolean, numberOfArticles?: number) {
-  if (forceRefresh) {
-    console.log(`Force refresh articles for ${sourceKey}.`);
-    const parsedArticles: Article[] = [];
-    const htmls = await Promise.all(urls.map(url => request(url)));
-    htmls.forEach(html => {
-      parsedArticles.push(...parseFunction(html));
-    });
-    allArticles.set(sourceKey, parsedArticles);
-    return numberOfArticles ? parsedArticles.slice(0, numberOfArticles) : parsedArticles;
-  }
-  return numberOfArticles ? allArticles.get(sourceKey)?.slice(0, numberOfArticles) : allArticles.get(sourceKey);
+  getHackerNewsCategoryKeys().forEach(category => handleHackerNewsRequest(true, 50, category).catch(err => console.error(err)));
 }
 
 function getAllSourceKeys() {
-  return ['dev-to', 'netflix', 'uber', 'androidpolice'];
+  return ['dev-to', 'netflix', 'uber', 'androidpolice', 'hackernews'];
 }
