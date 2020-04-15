@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "start": "node lib/index.js",
-    "start:dev": "ts-node src/index.ts",
+    "start:dev": "ts-node-dev --respawn src/*.ts",
     "start:lambda": "serverless offline start --skipCacheInvalidation",
     "build": "tsc -p .",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
