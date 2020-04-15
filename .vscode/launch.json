@@ -1,19 +1,34 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [{
-    "type": "node",
-    "request": "launch",
-    "name": "Jasmine Current File",
-    "program": "${workspaceFolder}/node_modules/jasmine/bin/jasmine",
-    "args": [
-      "${workspaceFolder}/out/tests/**/${fileBasenameNoExtension}.js"
-    ],
-    "preLaunchTask": "tsc: build - tsconfig.json",     
-    "outFiles": ["${workspaceFolder}/out/**/*.js"],
-    "console": "integratedTerminal",
-    "internalConsoleOptions": "neverOpen"
-  }]
+  "configurations": [
+    {
+      "name": "Lambda",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--inspect",
+        "--debug-port=9229"
+      ],
+      "program": "${workspaceFolder}/node_modules/serverless/bin/serverless",
+      "args": [
+        "offline"
+      ],
+      "port": 9229,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jasmine Current File",
+      "program": "${workspaceFolder}/node_modules/jasmine/bin/jasmine",
+      "args": [
+        "${workspaceFolder}/lib/tests/**/${fileBasenameNoExtension}.js"
+      ],
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
 }

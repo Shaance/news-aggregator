@@ -1,4 +1,4 @@
-import { getArticleFromStory, getStoryUrls } from "../../apis/HackerNewsApi";
+import { getArticleFromStory } from "../../apis/HackerNewsApi";
 import fs from "fs";
 import path from "path";
 

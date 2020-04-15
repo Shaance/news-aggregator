@@ -115,3 +115,5 @@ dist
 .pnp.*
 out/
 yarn.lock
+lib
+*zip

@@ -6,6 +6,7 @@ import cron from 'node-cron';
 import cors from 'cors';
 import config from "./config/EnvConfig";
 import { handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest } from './sourceHandler';
+import source from "./sourceHandler";
 
 // TODO use logger instead of console.log
 
@@ -13,6 +14,7 @@ const app = express();
 const sourceApi = '/api/v1/source'
 const port = config.port;
 const refreshFrequency = config.refreshFrequency; // in minutes
+const sourceHandler = source(false);
 
 app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
@@ -46,7 +48,7 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  handleDevToRequest(req.query.forceRefresh === 'true', req.query.category as string)
+  sourceHandler.devTo(req.query.forceRefresh === 'true', req.query.category as string)
     .then(articles => res.json(articles))
     .catch(error => next(error));
 });
@@ -73,7 +75,7 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/netflix`, async (req, res, next) => {
-  handleNetflixRequest(req.query.forceRefresh === 'true')
+  sourceHandler.netflix(req.query.forceRefresh === 'true')
   .then(articles => res.json(articles))
   .catch(error => next(error));
 });
@@ -101,7 +103,7 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
-  handleUberRequest(req.query.forceRefresh === 'true')
+  sourceHandler.uber(req.query.forceRefresh === 'true')
   .then(articles =>res.json(articles))
   .catch(error => next(error));
 });
@@ -134,7 +136,8 @@ app.get(`${sourceApi}/uber`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
-  handleAndroidPoliceRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50)
+  const articleNumber = req.query.articleNumber ? parseInt(req.query.articleNumber as string) : 25
+  sourceHandler.androidPolice(articleNumber, req.query.forceRefresh === 'true')
   .then(articles => res.json(articles))
   .catch(error => next(error));
 });
@@ -174,7 +177,8 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
-  handleHackerNewsRequest(req.query.forceRefresh === 'true', req.query.articleNumber ? req.query.articleNumber : 50, req.query.category)
+  const articleNumber = req.query.articleNumber ? parseInt(req.query.articleNumber as string) : 40;
+  sourceHandler.hackerNews(articleNumber, req.query.forceRefresh === 'true', req.query.category as string)
   .then(articles => res.json(articles))
   .catch(error => next(error));
 });
@@ -252,8 +256,8 @@ async function updateAllSources() {
   getDevToCategoryKeys().forEach(category => handleDevToRequest(true, category).catch(err => console.error(err)));
   handleNetflixRequest(true).catch(err => console.error(err));
   handleUberRequest(true).catch(err => console.error(err));
-  handleAndroidPoliceRequest(true, 50).catch(err => console.error(err));
-  getHackerNewsCategoryKeys().forEach(category => handleHackerNewsRequest(true, 50, category).catch(err => console.error(err)));
+  handleAndroidPoliceRequest(50, true).catch(err => console.error(err));
+  getHackerNewsCategoryKeys().forEach(category => handleHackerNewsRequest(50, true, category).catch(err => console.error(err)));
 }
 
 function getAllSourceKeys() {

@@ -2,21 +2,45 @@
   "name": "news-aggregator",
   "version": "1.0.0",
   "description": "news-aggregator API",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "start-dev": "ts-node-dev --respawn src/index.ts",
-    "start": "node out/index.js",
+    "start": "node lib/index.js",
+    "start:dev": "ts-node src/index.ts",
+    "start:lambda": "serverless offline start --skipCacheInvalidation",
     "build": "tsc -p .",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
     "coverage": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test"
   },
   "keywords": [
     "dev.to",
+    "uber",
+    "netflix",
+    "androidpolice",
     "scrapping"
   ],
   "author": "Christophe Ha",
   "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "node-cron": "^2.0.3",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "source-map-support": "^0.5.10",
+    "swagger-jsdoc": "^4.0.0",
+    "swagger-ui-express": "^4.1.4"
+  },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/node": "^10.12.18",
+    "fork-ts-checker-webpack-plugin": "^3.0.1",
+    "serverless-webpack": "^5.2.0",
+    "serverless": "^1.67.3",
+    "ts-loader": "^5.3.3",
+    "webpack": "^4.29.0",
+    "webpack-node-externals": "^1.7.2",
     "@types/cheerio": "^0.22.17",
     "@types/cors": "^2.8.6",
     "@types/express": "^4.17.4",
@@ -27,21 +51,13 @@
     "@types/swagger-jsdoc": "^3.0.2",
     "@types/swagger-ui-express": "^4.1.2",
     "jasmine": "^3.5.0",
-    "node-cron": "^2.0.3",
     "nyc": "^15.0.1",
     "rewire": "^5.0.0",
+    "serverless-offline": "^6.1.4",
     "swagger-jsdoc": "^4.0.0",
     "swagger-ui-express": "^4.1.4",
     "ts-node": "^8.8.1",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.8.3"
-  },
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5"
   }
 }

@@ -21,7 +21,7 @@ function getSwaggerOption(port: number) {
         url: `http://localhost:${port}/`
       }]
     },
-    apis: ['./out/index.js', './src/@types/Article.d.ts', './src/helpers/WebsiteCategories.ts']
+    apis: ['./lib/index.js', './src/index.ts', './src/@types/Article.d.ts', './src/helpers/WebsiteCategories.ts']
   };
 }
 export const swaggerDocs = (port: number) => swaggerJSDoc(getSwaggerOption(port));

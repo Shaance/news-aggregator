@@ -1,0 +1,74 @@
+service:
+  name: news-api-serverless
+# app and org for use with dashboard.serverless.com
+app: news-aggregator-api
+org: ievilhero
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-3
+  memorySize: 192
+  timeout: 15 
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  infoSourceKeys:
+    handler: src/indexServerless.infoSourceKeys
+    events:
+        - http:
+            path: /api/v1/info/sources
+            method: get
+  infoDevToCategoryKeys:
+    handler: src/indexServerless.infoDevToCategoryKeys
+    events:
+        - http:
+            path: /api/v1/info/source/dev-to/categories
+            method: get
+  infoHackerNewsCategoryKeys:
+    handler: src/indexServerless.infoHackerNewsCategoryKeys
+    events:
+        - http:
+            path: /api/v1/info/source/hackernews/categories
+            method: get
+  sourceUber:
+    handler: src/indexServerless.sourceUber
+    events:
+        - http:
+            path: /api/v1/source/uber
+            method: get     
+  sourceNetflix:
+    handler: src/indexServerless.sourceNetflix
+    events:
+        - http:
+            path: /api/v1/source/netflix
+            method: get            
+  sourceHackernews:
+    handler: src/indexServerless.sourceHackernews
+    events:
+        - http:
+            path: /api/v1/source/hackernews
+            method: get            
+  sourceAndroidpolice:
+    handler: src/indexServerless.sourceAndroidpolice
+    events:
+        - http:
+            path: /api/v1/source/androidpolice
+            method: get            
+  sourceDevto:
+    handler: src/indexServerless.sourceDevto
+    events:
+        - http:
+            path: /api/v1/source/dev-to
+            method: get            
+            
