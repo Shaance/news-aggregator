@@ -1,4 +1,4 @@
-import { getArticleFromStory } from "../../apis/HackerNewsApi";
+import { getArticleFromStory } from "../../../sources/apis/HackerNewsApi";
 import fs from "fs";
 import path from "path";
 
@@ -8,7 +8,7 @@ const encoding = 'UTF-8';
 describe('HackerNews api', function () {
   it('parse function should return Article object with correct info', async function () {
     fs.readFile(pathToItemSample, encoding, async (_, data) => {
-      let result = getArticleFromStory(data);
+      let result = getArticleFromStory(JSON.parse(data));
       const expected = {
         url: 'https://churchlifejournal.nd.edu/articles/youre-a-slave-to-money-then-you-die/',
         title: "You're a Slave to Money, Then You Die",

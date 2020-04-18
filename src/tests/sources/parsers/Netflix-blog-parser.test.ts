@@ -1,4 +1,4 @@
-import { parse } from "../../parsers/Netflix-blog-parser";
+import { parse } from "../../../sources/parsers/Netflix-blog-parser";
 import fs from "fs";
 import path from "path";
 

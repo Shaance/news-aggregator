@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
 import { getHackerNewsCategoryKeys, getDevToCategoryKeys } from './helpers/WebsiteCategories';
-import source from "./sourceHandler";
+import source from "./sources/sourceHandler";
 
 const sourceHandler = source(true);
 

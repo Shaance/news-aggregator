@@ -1,8 +1,9 @@
-import { Article } from "../@types/Article";
+import { Article } from "../../@types/Article";
 import { load } from "cheerio";
-import { clean } from "../helpers/String";
+import { clean } from "../../helpers/String";
 
 export function parse(html: string): Article[] {
+  // console.log(html);
   const results: Article[] = [];
   const $ = load(html);
   const links = $("a").toArray().filter(elem => elem.attribs['data-post-id']);

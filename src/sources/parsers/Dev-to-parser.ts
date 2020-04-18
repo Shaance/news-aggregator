@@ -1,6 +1,6 @@
-import { Article } from "../@types/Article";
+import { Article } from "../../@types/Article";
 import { load } from "cheerio";
-import { capitalize, clean } from "../helpers/String";
+import { capitalize, clean } from "../../helpers/String";
 
 const url = 'https://dev.to';
 
