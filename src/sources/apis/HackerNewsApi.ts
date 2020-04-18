@@ -1,19 +1,19 @@
-import { Article } from "../@types/Article";
-import request from 'request-promise';
-import { HackerNewsItem } from "../@types/HackerNewsItem";
+import { Article } from "../../@types/Article";
+// import request from 'request-promise';
+import axios from "axios";
+import { HackerNewsItem } from "../../@types/HackerNewsItem";
 
 const url = 'https://hacker-news.firebaseio.com/v0'
 
 export async function getStoryUrls(category: string): Promise<string[]> {
   const resolvedUrl = `${url}/${category}.json`;
-  return request(resolvedUrl)
-    .then(ids => JSON.parse(ids).map((id: number) => `${url}/item/${id}.json`))
+  return axios(resolvedUrl)
+    .then(ids => ids.data.map((id: number) => `${url}/item/${id}.json`))
     .catch(err => console.error(`Error while fetching data from ${resolvedUrl}\n${err}`));
 }
 
 // we return a Article array to comply with parsing interfaces
-export function getArticleFromStory(json: any): Article[] {
-  const item: HackerNewsItem = JSON.parse(json);
+export function getArticleFromStory(item: HackerNewsItem): Article[] {
   if (item) {
     return [{
       title: item.title,

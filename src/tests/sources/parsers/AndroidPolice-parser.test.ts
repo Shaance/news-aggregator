@@ -1,4 +1,4 @@
-import { parse, getPagesFromArticleNumbers } from "../../parsers/Android-police-parser";
+import { parse, getPagesFromArticleNumbers } from "../../../sources/parsers/Android-police-parser";
 import fs from "fs";
 import path from "path";
 

@@ -5,8 +5,8 @@ import { swaggerDocs } from './config/SwaggerConfig';
 import cron from 'node-cron';
 import cors from 'cors';
 import config from "./config/EnvConfig";
-import { handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest } from './sourceHandler';
-import source from "./sourceHandler";
+import { handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest } from './sources/sourceHandler';
+import source from "./sources/sourceHandler";
 
 // TODO use logger instead of console.log
 

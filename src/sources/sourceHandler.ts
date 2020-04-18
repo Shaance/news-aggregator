@@ -1,6 +1,6 @@
-import { getDevToCategory, getHackerNewsCategory } from "./helpers/WebsiteCategories";
-import { Article } from "./@types/Article";
-import request from 'request-promise';
+import { getDevToCategory, getHackerNewsCategory } from "../helpers/WebsiteCategories";
+import { Article } from "../@types/Article";
+import axios from "axios";
 import { parse as parseDevto } from './parsers/Dev-to-parser';
 import { parse as parseNetflix } from './parsers/Netflix-blog-parser';
 import { parse as parseUber } from './parsers/Uber-blog-parser';
@@ -56,10 +56,10 @@ export async function handleHackerNewsRequest(numberOfArticles: number, forceRef
 }
 
 // transformFunction is either a parsing function or a function which call an API
-async function handleSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], forceRefresh: boolean, numberOfArticles?: number) {
+async function handleSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], forceRefresh: boolean, numberOfArticles?: number): Promise<Article[]> {
   if (!_serverless) {
     if (forceRefresh || !allArticles.get(sourceKey)) {
-      console.log(`Force refresh articles for ${sourceKey}.`);
+      logForceRefresh(sourceKey);
       const parsedArticles: Article[] = await getResponsesFromUrls(urls, transformFunction);
       allArticles.set(sourceKey, parsedArticles);
       return numberOfArticles ? parsedArticles.slice(0, numberOfArticles) : parsedArticles;
@@ -72,12 +72,16 @@ async function handleSourceRequest(sourceKey: string, urls: string[], transformF
 }
 
 async function getResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
-  const parsedArticles: Article[] = [];
-  const responses = await Promise.all(urls.map(url => request(url)));
-  responses.forEach(response => {
-    parsedArticles.push(...transformFunction(response));
-  });
-  return parsedArticles;
+  return await Promise.all(
+    urls.map(url => 
+      axios.get(url)
+        .then(response => response.data)
+    )
+  ).then(responses => responses.flatMap(response => transformFunction(response)));
+}
+
+function logForceRefresh(source: string) {
+  console.log(`Force refresh articles for ${source}.`);
 }
 
 export default (serverless: boolean) => {

@@ -1,4 +1,4 @@
-import { parse } from "../../parsers/Uber-blog-parser";
+import { parse } from "../../../sources/parsers/Uber-blog-parser";
 import fs from "fs";
 import path from "path";
 
