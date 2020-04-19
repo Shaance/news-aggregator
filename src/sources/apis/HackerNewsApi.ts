@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import got from 'got';
 import { Article } from '../../@types/Article';
 import { HackerNewsItem } from '../../@types/HackerNewsItem';
