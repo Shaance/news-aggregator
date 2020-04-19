@@ -1,6 +1,6 @@
 import { getDevToCategory, getHackerNewsCategory } from "../helpers/WebsiteCategories";
 import { Article } from "../@types/Article";
-import axios from "axios";
+import got from "got";
 import { parse as parseDevto } from './parsers/Dev-to-parser';
 import { parse as parseNetflix } from './parsers/Netflix-blog-parser';
 import { parse as parseUber } from './parsers/Uber-blog-parser';
@@ -73,11 +73,8 @@ async function handleSourceRequest(sourceKey: string, urls: string[], transformF
 
 async function getResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
   return await Promise.all(
-    urls.map(url => 
-      axios.get(url)
-        .then(response => response.data)
-    )
-  ).then(responses => responses.flatMap(response => transformFunction(response)));
+    urls.map(url => got(url).then(response => transformFunction(response.body)))
+  )
 }
 
 function logForceRefresh(source: string) {

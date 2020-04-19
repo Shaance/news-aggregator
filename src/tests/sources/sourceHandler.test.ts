@@ -1,4 +1,4 @@
-import moxios from 'moxios';
+import nock from "nock";
 import sinon from 'sinon';
 import path from 'path';
 import fs from 'fs';
@@ -9,33 +9,22 @@ const sourceHandler = source(false);
 
 describe('SourceHandler class', function () {
 
-  beforeEach(function () {
-    // import and pass your custom axios instance to this method
-    moxios.install()
-  })
-
-  afterEach(function () {
-    // import and pass your custom axios instance to this method
-    moxios.uninstall()
-  })
-
   it('should call the right URL and numberOfArticles slice results when androidPolice method is called', function (done) {
 
     // two articles from html
     const pathToSample = path.join('src', 'tests', 'res', 'android-police-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
-    moxios.stubRequest('https://www.androidpolice.com/', {
-      status: 200,
-      responseText: fakeResponse
-    });
+    nock('https://www.androidpolice.com')
+    .get('/')
+    .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
     const numberOfArticles = 1;
 
-    sourceHandler.androidPolice(numberOfArticles, false).then(onFulfilled);
+    const promise = sourceHandler.androidPolice(numberOfArticles, false).then(onFulfilled);
 
-    moxios.wait(function () {
+    promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
       done();
     });
@@ -47,22 +36,20 @@ describe('SourceHandler class', function () {
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
     const category = 'new';
 
-    moxios.stubRequest(`https://hacker-news.firebaseio.com/v0/${getHackerNewsCategory(category)}.json`, {
-      status: 200,
-      responseText: "[1, 2]"
-    });
+    nock('https://hacker-news.firebaseio.com/v0')
+    .get(`/${getHackerNewsCategory(category)}.json`)
+    .reply(200, "[1, 2]");
 
-    moxios.stubRequest(/^https:\/\/hacker-news.firebaseio.com\/v0\/item\/*/, {
-      status: 200,
-      responseText: fakeResponse
-    });
+    nock('https://hacker-news.firebaseio.com/v0')
+    .get(/\/item\/*/)
+    .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
     const numberOfArticles = 1;
 
-    sourceHandler.hackerNews(numberOfArticles, false, category).then(onFulfilled);
+    const promise = sourceHandler.hackerNews(numberOfArticles, false, category).then(onFulfilled);
 
-    moxios.wait(function () {
+    promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
       done();
     });
@@ -74,15 +61,14 @@ describe('SourceHandler class', function () {
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
     const category = 'month';
 
-    moxios.stubRequest(`https://dev.to/${getDevToCategory(category)}`, {
-      status: 200,
-      responseText: fakeResponse
-    });
+    nock('https://dev.to')
+    .get(`/${getDevToCategory(category)}`)
+    .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
-    sourceHandler.devTo(false, category).then(onFulfilled);
+    const promise = sourceHandler.devTo(false, category).then(onFulfilled);
 
-    moxios.wait(function () {
+    promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(4);
       done();
     });
@@ -93,15 +79,14 @@ describe('SourceHandler class', function () {
     const pathToSample = path.join('src', 'tests', 'res', 'uber-blog-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
-    moxios.stubRequest('https://eng.uber.com/', {
-      status: 200,
-      responseText: fakeResponse
-    });
+    nock('https://eng.uber.com')
+    .get('/')
+    .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
-    sourceHandler.uber(false).then(onFulfilled);
+    const promise = sourceHandler.uber(false).then(onFulfilled);
 
-    moxios.wait(function () {
+    promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(2);
       done();
     });
@@ -112,18 +97,17 @@ describe('SourceHandler class', function () {
     const pathToSample = path.join('src', 'tests', 'res', 'netflix-blog-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
-    moxios.stubRequest('https://netflixtechblog.com/', {
-      status: 200,
-      responseText: fakeResponse
-    });
+    nock('https://netflixtechblog.com')
+      .get('/')
+      .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
-    sourceHandler.netflix(false).then(onFulfilled);
+    const promise = sourceHandler.netflix(false).then(onFulfilled);
 
-    moxios.wait(function () {
+    promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(3);
       done();
-    });
+    })
   });
 
 });
