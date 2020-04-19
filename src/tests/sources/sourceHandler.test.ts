@@ -47,7 +47,7 @@ describe('SourceHandler class', function () {
     const onFulfilled = sinon.spy();
     const numberOfArticles = 1;
 
-    const promise = sourceHandler.hackerNews(numberOfArticles, false, category).then(onFulfilled);
+    const promise = sourceHandler.hackerNews(numberOfArticles, category).then(onFulfilled);
 
     promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
@@ -66,7 +66,7 @@ describe('SourceHandler class', function () {
     .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
-    const promise = sourceHandler.devTo(false, category).then(onFulfilled);
+    const promise = sourceHandler.devTo(category).then(onFulfilled);
 
     promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(4);

@@ -48,7 +48,7 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  sourceHandler.devTo(req.query.forceRefresh === 'true', req.query.category as string)
+  sourceHandler.devTo(req.query.category as string, req.query.forceRefresh === 'true')
     .then(articles => res.json(articles))
     .catch(error => next(error));
 });
@@ -178,7 +178,7 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
  */
 app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
   const articleNumber = req.query.articleNumber ? parseInt(req.query.articleNumber as string) : 40;
-  sourceHandler.hackerNews(articleNumber, req.query.forceRefresh === 'true', req.query.category as string)
+  sourceHandler.hackerNews(articleNumber, req.query.category as string, req.query.forceRefresh === 'true')
   .then(articles => res.json(articles))
   .catch(error => next(error));
 });

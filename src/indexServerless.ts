@@ -29,14 +29,14 @@ export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async (_, _con
 export const sourceUber: APIGatewayProxyHandler = async (_, _context) => {
   return {
     statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.uber(false))
+    body: jsonStringifyPretty(await sourceHandler.uber())
   };
 };
 
 export const sourceNetflix: APIGatewayProxyHandler = async (_, _context) => {
   return {
     statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.netflix(false))
+    body: jsonStringifyPretty(await sourceHandler.netflix())
   };
 };
 
@@ -45,7 +45,6 @@ export const sourceHackernews: APIGatewayProxyHandler = async (event, _context) 
     statusCode: 200,
     body: jsonStringifyPretty(await sourceHandler.hackerNews(
       parseInt(event.queryStringParameters?.articleNumber) || 40,
-      false,
       event.queryStringParameters?.category
     ))
   };
@@ -54,16 +53,14 @@ export const sourceHackernews: APIGatewayProxyHandler = async (event, _context) 
 export const sourceAndroidpolice: APIGatewayProxyHandler = async (event, _context) => {
   return {
     statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.androidPolice(parseInt(event.queryStringParameters?.articleNumber) || 35, false))
+    body: jsonStringifyPretty(await sourceHandler.androidPolice(parseInt(event.queryStringParameters?.articleNumber) || 35))
   };
 };
 
 export const sourceDevto: APIGatewayProxyHandler = async (event, _context) => {
   return {
     statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.devTo(false,
-      event.queryStringParameters?.category
-    ))
+    body: jsonStringifyPretty(await sourceHandler.devTo(event.queryStringParameters?.category))
   };
 };
 

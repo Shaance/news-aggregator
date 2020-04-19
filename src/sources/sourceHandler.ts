@@ -84,10 +84,10 @@ function logForceRefresh(source: string) {
 export default (serverless: boolean = false) => {
   _serverless = serverless;
   return {
-    devTo: (forceRefresh: boolean, category?: string) => handleDevToRequest(forceRefresh, category),
-    androidPolice: (numberOfArticles: number, forceRefresh: boolean) => handleAndroidPoliceRequest(numberOfArticles, forceRefresh),
-    hackerNews: (numberOfArticles: number, forceRefresh: boolean, category?: string) => handleHackerNewsRequest(numberOfArticles, forceRefresh, category),
-    uber: (forceRefresh: boolean) => handleUberRequest(forceRefresh),
-    netflix: (forceRefresh: boolean) => handleNetflixRequest(forceRefresh)
+    devTo: (category?: string, forceRefresh: boolean = false) => handleDevToRequest(forceRefresh, category),
+    androidPolice: (numberOfArticles: number, forceRefresh: boolean = false) => handleAndroidPoliceRequest(numberOfArticles, forceRefresh),
+    hackerNews: (numberOfArticles: number, category?: string, forceRefresh: boolean = false) => handleHackerNewsRequest(numberOfArticles, forceRefresh, category),
+    uber: (forceRefresh: boolean = false) => handleUberRequest(forceRefresh),
+    netflix: (forceRefresh: boolean = false) => handleNetflixRequest(forceRefresh)
   }
 }
