@@ -1,7 +1,7 @@
 import { getDevToCategoryKeys, getHackerNewsCategoryKeys } from './helpers/WebsiteCategories';
 import express from 'express';
 import { serve, setup } from 'swagger-ui-express';
-import { swaggerDocs } from './config/SwaggerConfig';
+import swaggerDocs from './config/SwaggerConfig';
 import cron from 'node-cron';
 import cors from 'cors';
 import config from "./config/EnvConfig";

@@ -1,14 +1,14 @@
-import { Article } from "../../@types/Article";
-import { load } from "cheerio";
-import { clean } from "../../helpers/String";
+import { load } from 'cheerio';
+import { Article } from '../../@types/Article';
+import { clean } from '../../helpers/String';
 
 export function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
-  const data = $("h2").toArray().filter(elem => elem.attribs.itemprop)
-    .map(datum => datum.children[0]);
-  const dates = $("time.timeago").toArray();
-  const authors = $("a.author-name").toArray().map(elem => elem.children[0].data);
+  const data = $('h2').toArray().filter((elem) => elem.attribs.itemprop)
+    .map((datum) => datum.children[0]);
+  const dates = $('time.timeago').toArray();
+  const authors = $('a.author-name').toArray().map((elem) => elem.children[0].data);
 
   data.forEach((datum, idx) => {
     results.push({
@@ -16,7 +16,7 @@ export function parse(html: string): Article[] {
       title: clean(datum.children[0].data as string),
       date: new Date(dates[idx].attribs.datetime),
       author: clean(authors[idx]),
-      source: 'Android Police'
+      source: 'Android Police',
     });
   });
 
@@ -29,8 +29,10 @@ export function getPagesFromArticleNumbers(url: string, nbOfArticles: number): s
   if (nbOfArticles > 9) {
     let pageNumber = 2;
     let remainder = Math.floor(nbOfArticles / 10);
-    while (remainder-- != 0) {
-      pages.push(`${url}/page/${pageNumber++}/`);
+    while (remainder !== 0) {
+      remainder -= 1;
+      pages.push(`${url}/page/${pageNumber}/`);
+      pageNumber += 1;
     }
   }
   return pages;

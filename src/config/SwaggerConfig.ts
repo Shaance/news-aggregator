@@ -1,4 +1,4 @@
-import swaggerJSDoc from "swagger-jsdoc";
+import swaggerJSDoc from 'swagger-jsdoc';
 
 function getSwaggerOption(port: number) {
   return {
@@ -9,19 +9,19 @@ function getSwaggerOption(port: number) {
         description: 'Get articles from mutitple tech blogs.',
         license: {
           name: 'MIT',
-          url: 'https://choosealicense.com/licenses/mit/'
+          url: 'https://choosealicense.com/licenses/mit/',
         },
         contact: {
           name: 'Christophe Ha',
           url: 'http://hashcode.dev',
-          email: 'christophe@hashcode.dev'
-        }
+          email: 'christophe@hashcode.dev',
+        },
       },
       servers: [{
-        url: `http://localhost:${port}/`
-      }]
+        url: `http://localhost:${port}/`,
+      }],
     },
-    apis: ['./lib/index.js', './src/index.ts', './src/@types/Article.d.ts', './src/helpers/WebsiteCategories.ts']
+    apis: ['./lib/index.js', './src/index.ts', './src/@types/Article.d.ts', './src/helpers/WebsiteCategories.ts'],
   };
 }
-export const swaggerDocs = (port: number) => swaggerJSDoc(getSwaggerOption(port));
+export default (port: number) => swaggerJSDoc(getSwaggerOption(port));

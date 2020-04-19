@@ -1,9 +1,9 @@
 import { getDevToCategory, getHackerNewsCategory } from "../helpers/WebsiteCategories";
 import { Article } from "../@types/Article";
 import got from "got";
-import { parse as parseDevto } from './parsers/Dev-to-parser';
-import { parse as parseNetflix } from './parsers/Netflix-blog-parser';
-import { parse as parseUber } from './parsers/Uber-blog-parser';
+import parseDevto from './parsers/Dev-to-parser';
+import parseNetflix from './parsers/Netflix-blog-parser';
+import parseUber from './parsers/Uber-blog-parser';
 import { parse as parseAndroidPolice, getPagesFromArticleNumbers } from './parsers/Android-police-parser';
 import { getArticleFromStory, getStoryUrls } from "./apis/HackerNewsApi";
 

@@ -32,7 +32,7 @@
  *         source: uber
  *         author: Name Name
  *         imageUrl: https://1fykyq3mdn5r21tpna3wkdyi-wpengine.netdna-ssl.com/wp-content/uploads/2020/03/Header-Piranha-696x298.jpg
- * 
+ *
  */
 export interface Article {
   url: string;
