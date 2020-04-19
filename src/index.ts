@@ -14,7 +14,7 @@ const app = express();
 const sourceApi = '/api/v1/source'
 const port = config.port;
 const refreshFrequency = config.refreshFrequency; // in minutes
-const sourceHandler = source(false);
+const sourceHandler = source();
 
 app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));

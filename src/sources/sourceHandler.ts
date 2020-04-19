@@ -73,15 +73,15 @@ async function handleSourceRequest(sourceKey: string, urls: string[], transformF
 
 async function getResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
   return await Promise.all(
-    urls.map(url => got(url).then(response => transformFunction(response.body)))
-  )
+    urls.map(url => got(url).then(response => response.body))
+  ).then(responses => responses.flatMap(response => transformFunction(response)));
 }
 
 function logForceRefresh(source: string) {
   console.log(`Force refresh articles for ${source}.`);
 }
 
-export default (serverless: boolean) => {
+export default (serverless: boolean = false) => {
   _serverless = serverless;
   return {
     devTo: (forceRefresh: boolean, category?: string) => handleDevToRequest(forceRefresh, category),

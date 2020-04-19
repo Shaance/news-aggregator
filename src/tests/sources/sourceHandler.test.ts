@@ -5,7 +5,7 @@ import fs from 'fs';
 import source from '../../sources/sourceHandler';
 import { getHackerNewsCategory, getDevToCategory } from '../../helpers/WebsiteCategories';
 
-const sourceHandler = source(false);
+const sourceHandler = source();
 
 describe('SourceHandler class', function () {
 
