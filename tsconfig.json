@@ -12,6 +12,7 @@
     "target": "es2017",
     "outDir": "lib",
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": false,
   },
   "include": ["./**/*.ts"],
   "exclude": [
