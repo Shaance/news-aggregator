@@ -1,93 +1,108 @@
-import { getDevToCategory, getHackerNewsCategory } from "../helpers/WebsiteCategories";
-import { Article } from "../@types/Article";
-import got from "got";
+/* eslint-disable max-len */
+import got from 'got';
+import { getDevToCategory, getHackerNewsCategory } from '../helpers/SourceHelper';
+import { Article } from '../@types/Article';
 import parseDevto from './parsers/Dev-to-parser';
 import parseNetflix from './parsers/Netflix-blog-parser';
 import parseUber from './parsers/Uber-blog-parser';
 import { parse as parseAndroidPolice, getPagesFromArticleNumbers } from './parsers/Android-police-parser';
-import { getArticleFromStory, getStoryUrls } from "./apis/HackerNewsApi";
+import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
+import getFullHtml from './DynamicHtmlLoader';
+import { SourceOptions } from '../@types/SourceOptions';
 
-// TODO test this class
 
 const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
-let _serverless: boolean;
+let serverlessMode: boolean;
 
-export async function handleDevToRequest(forceRefresh: boolean, queryCategory?: string) {
+export async function handleDevToRequest(options: SourceOptions) {
   let sourceKey = 'dev-to/';
   const baseUrl = 'https://dev.to';
-  const category = getDevToCategory(queryCategory);
+  const category = getDevToCategory(options.category);
   sourceKey += category;
-  const url = category ? baseUrl + '/' + category : baseUrl;
-  return handleSourceRequest(sourceKey, [url], parseDevto, forceRefresh);
+  const url = category ? `${baseUrl}/${category}` : baseUrl;
+  return handleDynamicSourceRequest(sourceKey, url, parseDevto, options, 'time');
 }
 
-export async function handleNetflixRequest(forceRefresh: boolean) {
-  return handleSourceRequest('netflix', ['https://netflixtechblog.com/'], parseNetflix, forceRefresh);
+export async function handleNetflixRequest(options: SourceOptions) {
+  return handleStaticSourceRequest('netflix', ['https://netflixtechblog.com/'], parseNetflix, options);
 }
 
-export async function handleUberRequest(forceRefresh: boolean) {
-  return handleSourceRequest('uber', ['https://eng.uber.com/'], parseUber, forceRefresh);
+export async function handleUberRequest(options: SourceOptions) {
+  return handleStaticSourceRequest('uber', ['https://eng.uber.com/'], parseUber, options);
 }
 
-export async function handleAndroidPoliceRequest(numberOfArticles: number, forceRefresh: boolean) {
-  const sourceKey = 'androidpolice';
-  if (!_serverless && allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles) {
-    forceRefresh = true;
-  }
-  return handleSourceRequest(sourceKey, getPagesFromArticleNumbers('https://www.androidpolice.com/', numberOfArticles), parseAndroidPolice, forceRefresh,numberOfArticles);
+export async function handleAndroidPoliceRequest(options: SourceOptions) {
+  return handleStaticSourceRequest('androidpolice', getPagesFromArticleNumbers('https://www.androidpolice.com/', options.numberOfArticles), parseAndroidPolice, options);
 }
 
-export async function handleHackerNewsRequest(numberOfArticles: number, forceRefresh: boolean, queryCategory? : string) {
-  let resolvedCategory = getHackerNewsCategory(queryCategory);
+export async function handleHackerNewsRequest(options: SourceOptions) {
+  let resolvedCategory = getHackerNewsCategory(options.category);
   if (!resolvedCategory) {
     // default to best stories
     resolvedCategory = getHackerNewsCategory('best');
   }
-  const sourceKey = 'hackernews/' + resolvedCategory;
-  let storyUrls: string[] = []
-  if (!_serverless && !allArticles.has(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles)) {
-    forceRefresh = true;
-    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, numberOfArticles);
-  } else if (_serverless || forceRefresh) {
-    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, numberOfArticles);
+  const sourceKey = `hackernews/${resolvedCategory}`;
+  let storyUrls: string[] = [];
+  if (serverlessMode || options.forceRefresh || !allArticles.has(sourceKey) || allArticles.get(sourceKey)?.length < options.numberOfArticles) {
+    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, options.numberOfArticles);
   }
 
-  return handleSourceRequest(sourceKey, storyUrls, getArticleFromStory,forceRefresh, numberOfArticles);
-}
-
-// transformFunction is either a parsing function or a function which call an API
-async function handleSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], forceRefresh: boolean, numberOfArticles?: number): Promise<Article[]> {
-  if (!_serverless) {
-    if (forceRefresh || !allArticles.get(sourceKey)) {
-      logForceRefresh(sourceKey);
-      const parsedArticles: Article[] = await getResponsesFromUrls(urls, transformFunction);
-      allArticles.set(sourceKey, parsedArticles);
-      return numberOfArticles ? parsedArticles.slice(0, numberOfArticles) : parsedArticles;
-    }
-    return numberOfArticles ? allArticles.get(sourceKey)?.slice(0, numberOfArticles) : allArticles.get(sourceKey);
-  }
-
-  const parsedArticles: Article[] = await getResponsesFromUrls(urls, transformFunction);
-  return numberOfArticles ? parsedArticles.slice(0, numberOfArticles) : parsedArticles;
-}
-
-async function getResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
-  return await Promise.all(
-    urls.map(url => got(url).then(response => response.body))
-  ).then(responses => responses.flatMap(response => transformFunction(response)));
+  return handleStaticSourceRequest(sourceKey, storyUrls, getArticleFromStory, options);
 }
 
 function logForceRefresh(source: string) {
   console.log(`Force refresh articles for ${source}.`);
 }
 
-export default (serverless: boolean = false) => {
-  _serverless = serverless;
-  return {
-    devTo: (category?: string, forceRefresh: boolean = false) => handleDevToRequest(forceRefresh, category),
-    androidPolice: (numberOfArticles: number, forceRefresh: boolean = false) => handleAndroidPoliceRequest(numberOfArticles, forceRefresh),
-    hackerNews: (numberOfArticles: number, category?: string, forceRefresh: boolean = false) => handleHackerNewsRequest(numberOfArticles, forceRefresh, category),
-    uber: (forceRefresh: boolean = false) => handleUberRequest(forceRefresh),
-    netflix: (forceRefresh: boolean = false) => handleNetflixRequest(forceRefresh)
-  }
+async function getStaticResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
+  return Promise.all(
+    urls.map((url) => got(url).then((response) => response.body)),
+  ).then((responses) => responses.flatMap((response) => transformFunction(response)));
 }
+
+// transformFunction is either a parsing function or a function which call an API
+async function handleStaticSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], options: SourceOptions): Promise<Article[]> {
+  if (!serverlessMode) {
+    if (options.forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < options.numberOfArticles)) {
+      logForceRefresh(sourceKey);
+      const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
+      allArticles.set(sourceKey, parsedArticles);
+      return parsedArticles.slice(0, options.numberOfArticles);
+    }
+    return allArticles.get(sourceKey)?.slice(0, options.numberOfArticles);
+  }
+
+  const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
+  return parsedArticles.slice(0, options.numberOfArticles);
+}
+
+async function getDynamicResponsesFromUrls(url: string, transformFunction: (source: any) => Article[], elementToTrack: string, limit: number, loadButton?: string): Promise<Article[]> {
+  return getFullHtml(url, elementToTrack, limit, loadButton).then((response) => transformFunction(response));
+}
+
+async function handleDynamicSourceRequest(sourceKey: string, url: string, transformFunction: (source: any) => Article[],
+  options: SourceOptions, elementToTrack: string, loadButton?: string): Promise<Article[]> {
+  if (!serverlessMode) {
+    if (options.forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < options.numberOfArticles)) {
+      logForceRefresh(sourceKey);
+      const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, options.numberOfArticles, loadButton);
+      allArticles.set(sourceKey, parsedArticles);
+      return parsedArticles.slice(0, options.numberOfArticles);
+    }
+    return allArticles.get(sourceKey)?.slice(0, options.numberOfArticles);
+  }
+
+  const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, options.numberOfArticles, loadButton);
+  return parsedArticles.slice(0, options.numberOfArticles);
+}
+
+export default (serverless: boolean = false) => {
+  serverlessMode = serverless;
+  return {
+    devTo: (options: SourceOptions) => handleDevToRequest(options),
+    androidPolice: (options: SourceOptions) => handleAndroidPoliceRequest(options),
+    hackerNews: (options: SourceOptions) => handleHackerNewsRequest(options),
+    uber: (options: SourceOptions) => handleUberRequest(options),
+    netflix: (options: SourceOptions) => handleNetflixRequest(options),
+  };
+};

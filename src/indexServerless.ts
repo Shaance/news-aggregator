@@ -1,71 +1,69 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { getHackerNewsCategoryKeys, getDevToCategoryKeys } from './helpers/WebsiteCategories';
-import source from "./sources/sourceHandler";
+import { getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys } from './helpers/SourceHelper';
+import source from './sources/SourceHandler';
+import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
+import { SourceOptions } from './@types/SourceOptions';
 
 const sourceHandler = source(true);
 
-export const infoSourceKeys: APIGatewayProxyHandler = async (_, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(getAllSourceKeys()),
-  };
-};
+export const infoSourceKeys: APIGatewayProxyHandler = async () => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(getAllSourceKeys()),
+});
 
-export const infoDevToCategoryKeys: APIGatewayProxyHandler = async (_, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(getDevToCategoryKeys()),
-  };
-};
+export const infoDevToCategoryKeys: APIGatewayProxyHandler = async () => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(getDevToCategoryKeys()),
+});
 
-export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async (_, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(getHackerNewsCategoryKeys()),
-  };
-};
+export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async () => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(getHackerNewsCategoryKeys()),
+});
 
-export const sourceUber: APIGatewayProxyHandler = async (_, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.uber())
-  };
-};
+export const sourceUber: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(await sourceHandler.uber(getOptions(event))),
+});
 
-export const sourceNetflix: APIGatewayProxyHandler = async (_, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.netflix())
-  };
-};
+export const sourceNetflix: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(await sourceHandler.netflix(getOptions(event))),
+});
 
-export const sourceHackernews: APIGatewayProxyHandler = async (event, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.hackerNews(
-      parseInt(event.queryStringParameters?.articleNumber) || 40,
-      event.queryStringParameters?.category
-    ))
-  };
-};
+export const sourceHackernews: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(await sourceHandler.hackerNews(getOptions(event))),
+});
 
-export const sourceAndroidpolice: APIGatewayProxyHandler = async (event, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.androidPolice(parseInt(event.queryStringParameters?.articleNumber) || 35))
-  };
-};
+export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(await sourceHandler.androidPolice(getOptions(event))),
+});
 
-export const sourceDevto: APIGatewayProxyHandler = async (event, _context) => {
-  return {
-    statusCode: 200,
-    body: jsonStringifyPretty(await sourceHandler.devTo(event.queryStringParameters?.category))
-  };
-};
+export const sourceDevto: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  body: jsonStringifyPretty(await sourceHandler.devTo(getOptions(event))),
+});
 
-function getAllSourceKeys() {
-  return ['dev-to', 'netflix', 'uber', 'androidpolice', 'hackernews'];
+function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
+  if (event.queryStringParameters?.articleNumber) {
+    builder.setNumberOfArticles(parseInt(event.queryStringParameters!.articleNumber, 10));
+  }
+}
+
+function setCategory(event, builder: SourceOptionsBuilder) {
+  if (event.queryStringParameters?.category) {
+    builder.setCategory(event.queryStringParameters!.category);
+  }
+}
+
+function getOptions(event): SourceOptions {
+  const builder = new SourceOptionsBuilder();
+  setCategory(event, builder);
+  setNumberOfArticles(event, builder);
+  return builder.build();
 }
 
 function jsonStringifyPretty(body: any) {

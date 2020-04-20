@@ -21,7 +21,7 @@ export function getDevToCategory(key: string | undefined): string {
  *      items:
  *        type: string
  */
-export function getDevToCategoryKeys(): Array<string> {
+export function getDevToCategoryKeys(): string[] {
   return Array.from(devToCategories.keys());
 }
 
@@ -37,6 +37,10 @@ export function getHackerNewsCategory(key: string | undefined): string {
   return '';
 }
 
-export function getHackerNewsCategoryKeys(): Array<string> {
+export function getHackerNewsCategoryKeys(): string[] {
   return Array.from(hackerNewsCategories.keys());
+}
+
+export function getAllSourceKeys() {
+  return ['dev-to', 'uber', 'netflix', 'androidpolice', 'hackernews'];
 }
