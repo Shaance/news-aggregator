@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "lib": ["es2019"],
+    "lib": [
+      "es2019",
+      "dom"
+    ],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -8,7 +11,7 @@
     "module": "commonjs",
     "target": "es2017",
     "outDir": "lib",
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
   "include": ["./**/*.ts"],
   "exclude": [
