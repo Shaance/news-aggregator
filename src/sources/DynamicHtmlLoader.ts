@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
-import puppeteer, { Page } from 'puppeteer';
+import chromium from 'chrome-aws-lambda';
+import { Page } from 'puppeteer-core';
 
 async function getCount(page: Page, elementToTrack: string) {
   await page.waitForSelector(elementToTrack);
@@ -50,25 +51,35 @@ async function clickUntilLimit(page: Page, elementToTrack: string, limit: number
  * otherwise will scroll to load page
  */
 async function getFullHtml(url: string, elementToTrack: string, limit: number, loadButton?: string): Promise<string> {
-  const browser = await puppeteer.launch({
+
+  const browser = await chromium.puppeteer.launch({
+    executablePath: await chromium.executablePath,
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
     headless: true,
-    defaultViewport: null,
-    args: ['--window-size=1920,1080'],
   });
-  const page = await browser.newPage();
-  await page.goto(url);
-  const delay = 350;
 
-  if (loadButton) {
-    await clickUntilLimit(page, elementToTrack, limit, delay, loadButton);
-  } else {
-    await scrollUntilLimit(page, elementToTrack, limit, delay);
+  try {
+    const page = await browser.newPage();
+    await page.goto(url);
+    const delay = 350;
+
+    if (loadButton) {
+      await clickUntilLimit(page, elementToTrack, limit, delay, loadButton);
+    } else {
+      await scrollUntilLimit(page, elementToTrack, limit, delay);
+    }
+
+    const result = await page.evaluate(() => document.body.innerHTML);
+
+    await browser.close();
+    return result;
+  } catch (error) {
+    console.error(error);
+    return Promise.resolve('');
+  } finally {
+    await browser.close();
   }
-
-  const result = await page.evaluate(() => document.body.innerHTML);
-  await browser.close();
-
-  return result;
 }
 
 export default getFullHtml;
