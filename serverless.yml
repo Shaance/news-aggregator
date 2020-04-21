@@ -10,14 +10,14 @@ custom:
     includeModules: true
 
 plugins:
-  - serverless-webpack
   - serverless-offline
+  - serverless-webpack
 
 provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-3
-  memorySize: 192
+  memorySize: 768
   timeout: 25 
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1

@@ -117,3 +117,4 @@ yarn.lock
 lib
 *zip
 .webpack
+.build
