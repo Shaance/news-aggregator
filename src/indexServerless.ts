@@ -12,6 +12,7 @@ const headers = {
 
 export const infoSourceKeys: APIGatewayProxyHandler = async () => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(getAllSourceKeys()),
 });
 
@@ -29,6 +30,7 @@ export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async () => ({
 
 export const sourceUber: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(await sourceHandler.uber(getOptions(event))),
 });
 
