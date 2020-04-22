@@ -6,6 +6,9 @@ import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 
 const sourceHandler = source(true);
+const headers = {
+  'Content-Type': 'application/json; charset=UTF-8',
+};
 
 export const infoSourceKeys: APIGatewayProxyHandler = async () => ({
   statusCode: 200,
@@ -14,11 +17,13 @@ export const infoSourceKeys: APIGatewayProxyHandler = async () => ({
 
 export const infoDevToCategoryKeys: APIGatewayProxyHandler = async () => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(getDevToCategoryKeys()),
 });
 
 export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async () => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(getHackerNewsCategoryKeys()),
 });
 
@@ -29,21 +34,25 @@ export const sourceUber: APIGatewayProxyHandler = async (event) => ({
 
 export const sourceNetflix: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(await sourceHandler.netflix(getOptions(event))),
 });
 
 export const sourceHackernews: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(await sourceHandler.hackerNews(getOptions(event))),
 });
 
 export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(await sourceHandler.androidPolice(getOptions(event))),
 });
 
 export const sourceDevto: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
+  headers,
   body: jsonStringifyPretty(await sourceHandler.devTo(getOptions(event))),
 });
 
