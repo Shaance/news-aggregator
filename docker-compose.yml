@@ -4,4 +4,4 @@ services:
   news-service:
     build: ./
     ports:
-      - "3001:${PORT}"
+      - "${PORT}:${PORT}"
