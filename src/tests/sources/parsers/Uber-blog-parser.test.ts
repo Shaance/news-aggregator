@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import parse from '../../../sources/parsers/Uber-blog-parser';
 
-const pathToSample = path.join('res', 'uber-blog-sample.html');
+const pathToSample = path.join('res', 'tests', 'uber-blog-sample.html');
 const encoding = 'UTF-8';
 
 describe('Uber-blog-parser', () => {

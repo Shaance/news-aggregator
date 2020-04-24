@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import parse from '../../../sources/parsers/Android-police-parser';
 
-const pathToSample = path.join('res', 'android-police-sample.html');
+const pathToSample = path.join('res', 'tests', 'android-police-sample.html');
 const encoding = 'UTF-8';
 
 describe('AndroidPolice-blog-parser', () => {
