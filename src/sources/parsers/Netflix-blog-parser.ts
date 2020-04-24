@@ -7,6 +7,7 @@ function parse(html: string): Article[] {
   const $ = load(html);
   const links = $('a').toArray().filter((elem) => elem.attribs['data-post-id']);
   const dates = $('time').toArray();
+  const authors = $('.u-fontSize18.u-letterSpacingTight.u-lineHeightTight').toArray().map((elem) => elem.children[0].data);
   const titles = $('.u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis')
     .toArray().map((title) => title.children[0]);
   titles.forEach((title, idx) => {
@@ -14,6 +15,7 @@ function parse(html: string): Article[] {
       title: clean(title.data as string),
       url: links[idx].attribs.href,
       date: new Date(dates[idx].attribs.datetime),
+      author: clean(authors[idx]).replace('By ', ''),
       source: 'Netflix',
     });
   });
