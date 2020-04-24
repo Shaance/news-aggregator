@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parse, getPagesFromArticleNumbers } from '../../../sources/parsers/Android-police-parser';
+import parse from '../../../sources/parsers/Android-police-parser';
 
 const pathToSample = path.join('src', 'tests', 'res', 'android-police-sample.html');
 const encoding = 'UTF-8';
@@ -25,21 +25,5 @@ describe('AndroidPolice-blog-parser', () => {
       };
       expect(result[0]).toEqual(expected);
     });
-  });
-
-  it('getPagesFromArticleNumbers function should return original url if number of articles is < 10', () => {
-    const url = 'testurl.com';
-    const result1 = getPagesFromArticleNumbers(url, -30);
-    const result2 = getPagesFromArticleNumbers(url, 5);
-    const expected = [url];
-    expect(result1).toEqual(expected);
-    expect(result2).toEqual(expected);
-  });
-
-  it('getPagesFromArticleNumbers function should return original url + pages if number of articles is > 10', () => {
-    const url = 'testurl.com';
-    const result = getPagesFromArticleNumbers(url, 25);
-    const expected = [url, `${url}/page/2/`, `${url}/page/3/`];
-    expect(result).toEqual(expected);
   });
 });

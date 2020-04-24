@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import got from 'got';
-import { getDevToCategory, getHackerNewsCategory } from '../helpers/SourceHelper';
+import { getDevToCategory, getHackerNewsCategory, getUrlsFromPaginatedSource } from '../helpers/SourceHelper';
 import { Article } from '../@types/Article';
 import parseDevto from './parsers/Dev-to-parser';
 import parseNetflix from './parsers/Netflix-blog-parser';
 import parseUber from './parsers/Uber-blog-parser';
-import { parse as parseAndroidPolice, getPagesFromArticleNumbers } from './parsers/Android-police-parser';
+import parseAndroidPolice from './parsers/Android-police-parser';
 import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
 import getFullHtml from './DynamicHtmlLoader';
 import { SourceOptions } from '../@types/SourceOptions';
@@ -24,15 +24,15 @@ export async function handleDevToRequest(options: SourceOptions) {
 }
 
 export async function handleNetflixRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('netflix', ['https://netflixtechblog.com/'], parseNetflix, options);
+  return handleDynamicSourceRequest('netflix', 'https://netflixtechblog.com/', parseNetflix, options, 'time');
 }
 
 export async function handleUberRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('uber', ['https://eng.uber.com/'], parseUber, options);
+  return handleStaticSourceRequest('uber', getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 30), parseUber, options);
 }
 
 export async function handleAndroidPoliceRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('androidpolice', getPagesFromArticleNumbers('https://www.androidpolice.com/', options.numberOfArticles), parseAndroidPolice, options);
+  return handleStaticSourceRequest('androidpolice', getUrlsFromPaginatedSource('https://www.androidpolice.com/', options.numberOfArticles, 10), parseAndroidPolice, options);
 }
 
 export async function handleHackerNewsRequest(options: SourceOptions) {

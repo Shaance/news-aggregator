@@ -118,20 +118,20 @@ describe('SourceHandler class', () => {
     });
   });
 
-  it('should call the right URL netflix method is called', (done) => {
-    const pathToSample = path.join('src', 'tests', 'res', 'netflix-blog-sample.html');
-    const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
+  // it('should call the right URL netflix method is called', (done) => {
+  //   const pathToSample = path.join('src', 'tests', 'res', 'netflix-blog-sample.html');
+  //   const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
-    nock('https://netflixtechblog.com')
-      .get('/')
-      .reply(200, fakeResponse);
+  //   nock('https://netflixtechblog.com')
+  //     .get('/')
+  //     .reply(200, fakeResponse);
 
-    const onFulfilled = sinon.spy();
-    const promise = sourceHandler.netflix(new SourceOptionsBuilder().build()).then(onFulfilled);
+  //   const onFulfilled = sinon.spy();
+  //   const promise = sourceHandler.netflix(new SourceOptionsBuilder().build()).then(onFulfilled);
 
-    promise.then(() => {
-      expect(onFulfilled.getCall(0).args[0].length).toEqual(3);
-      done();
-    });
-  });
+  //   promise.then(() => {
+  //     expect(onFulfilled.getCall(0).args[0].length).toEqual(3);
+  //     done();
+  //   });
+  // });
 });
