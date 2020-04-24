@@ -20,6 +20,7 @@ describe('Netflix-blog-parser', () => {
         url: 'https://netflixtechblog.com/bringing-4k-and-hdr-to-anime-at-netflix-with-sol-levante'
           + '-fa68105067cd?source=collection_home---4------0-----------------------',
         title: 'Bringing 4K and HDR to Anime at Netflix with Sol Levante',
+        author: 'Haruka Miyagawa & Kylee Peña',
         date: new Date('2020-04-02T07:01:00.929Z'),
         source: 'Netflix',
       };
