@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { getArticleFromStory } from '../../../sources/apis/HackerNewsApi';
 
-const pathToItemSample = path.join('src', 'tests', 'res', 'hacker-news-item-sample.json');
+const pathToItemSample = path.join('res', 'tests', 'hacker-news-item-sample.json');
 const encoding = 'UTF-8';
 
 describe('HackerNews api', () => {

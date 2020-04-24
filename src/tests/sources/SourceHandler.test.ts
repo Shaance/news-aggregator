@@ -14,7 +14,7 @@ const sourceHandler = source();
 describe('SourceHandler class', () => {
   it('should call the right URL and numberOfArticles slice results when androidPolice method is called', (done) => {
     // two articles from html
-    const pathToSample = path.join('src', 'tests', 'res', 'android-police-sample.html');
+    const pathToSample = path.join('res', 'tests', 'android-police-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
     nock('https://www.androidpolice.com')
@@ -33,7 +33,7 @@ describe('SourceHandler class', () => {
   });
 
   it('should call the right URL, resolve right category and numberOfArticles slice results when hackernews method is called', (done) => {
-    const pathToSample = path.join('src', 'tests', 'res', 'hacker-news-item-sample.json');
+    const pathToSample = path.join('res', 'tests', 'hacker-news-item-sample.json');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
     const category = 'new';
 
@@ -62,7 +62,7 @@ describe('SourceHandler class', () => {
   });
 
   // it('should call the right URL and resolve category when dev-to method is called', (done) => {
-  //   const pathToSample = path.join('src', 'tests', 'res', 'dev-to-sample.html');
+  //   const pathToSample = path.join('res', 'tests', 'dev-to-sample.html');
   //   const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
   //   const category = 'month';
 
@@ -102,7 +102,7 @@ describe('SourceHandler class', () => {
   // });
 
   it('should call the right URL when uber method is called', (done) => {
-    const pathToSample = path.join('src', 'tests', 'res', 'uber-blog-sample.html');
+    const pathToSample = path.join('res', 'tests', 'uber-blog-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
     nock('https://eng.uber.com')
@@ -119,7 +119,7 @@ describe('SourceHandler class', () => {
   });
 
   // it('should call the right URL netflix method is called', (done) => {
-  //   const pathToSample = path.join('src', 'tests', 'res', 'netflix-blog-sample.html');
+  //   const pathToSample = path.join('res', 'tests', 'netflix-blog-sample.html');
   //   const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
 
   //   nock('https://netflixtechblog.com')
