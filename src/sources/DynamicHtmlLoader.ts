@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 import chromium from 'chrome-aws-lambda';
-import { Page } from 'puppeteer-core';
+import { Page, Browser } from 'puppeteer-core';
 
 async function getCount(page: Page, elementToTrack: string) {
   await page.waitForSelector(elementToTrack);
@@ -52,14 +52,10 @@ async function clickUntilLimit(page: Page, elementToTrack: string, limit: number
  */
 async function getFullHtml(url: string, elementToTrack: string, limit: number, loadButton?: string): Promise<string> {
 
-  const browser = await chromium.puppeteer.launch({
-    executablePath: await chromium.executablePath,
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    headless: true,
-  });
+  let browser: Browser;
 
   try {
+    browser = await getBrowser();
     const page = await browser.newPage();
     await page.goto(url);
     const delay = 350;
@@ -78,8 +74,36 @@ async function getFullHtml(url: string, elementToTrack: string, limit: number, l
     console.error(error);
     return Promise.resolve('');
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
+}
+
+async function getBrowser() {
+  // try {
+  //   // AWS lambda
+  //   const res = await chromium.puppeteer.launch({
+  //     executablePath: await chromium.executablePath,
+  //     args: chromium.args,
+  //     defaultViewport: chromium.defaultViewport,
+  //     headless: true,
+  //   });
+  //   return res;
+  // } catch (err) {
+  //   // Launch in local
+  //   return puppeteer.launch({
+  //     args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  //     defaultViewport: null,
+  //     headless: true,
+  //   });
+  // }
+  return chromium.puppeteer.launch({
+    executablePath: await chromium.executablePath,
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    headless: true,
+  });
 }
 
 export default getFullHtml;

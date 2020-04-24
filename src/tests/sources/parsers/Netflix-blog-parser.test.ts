@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import parse from '../../../sources/parsers/Netflix-blog-parser';
 
-const pathToSample = path.join('src', 'tests', 'res', 'netflix-blog-sample.html');
+const pathToSample = path.join('res', 'netflix-blog-sample.html');
 const encoding = 'UTF-8';
 
 describe('Netflix-blog-parser', () => {
