@@ -44,3 +44,24 @@ export function getHackerNewsCategoryKeys(): string[] {
 export function getAllSourceKeys() {
   return ['dev-to', 'uber', 'netflix', 'androidpolice', 'hackernews'];
 }
+
+/**
+ * returns the urls you have to fetch from for paginated website depending of the
+ * number of articles you need
+ * @param url the baseUrl
+ * @param nbOfArticles number of articles you want to fetch
+ * @param articlePerPage number of articles per page
+ */
+export function getUrlsFromPaginatedSource(url: string, nbOfArticles: number, articlePerPage: number): string[] {
+  const pages = new Array<string>(url);
+  if (nbOfArticles >= articlePerPage) {
+    let pageNumber = 2;
+    let remainder = Math.floor(nbOfArticles / articlePerPage);
+    while (remainder !== 0) {
+      remainder -= 1;
+      pages.push(`${url}/page/${pageNumber}/`);
+      pageNumber += 1;
+    }
+  }
+  return pages;
+}

@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 import { Article } from '../../@types/Article';
 import { clean } from '../../helpers/String';
 
-export function parse(html: string): Article[] {
+function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
   const data = $('h2').toArray().filter((elem) => elem.attribs.itemprop)
@@ -23,17 +23,4 @@ export function parse(html: string): Article[] {
   return results;
 }
 
-// 10 articles per pages on AndroidPolice
-export function getPagesFromArticleNumbers(url: string, nbOfArticles: number): string[] {
-  const pages = new Array<string>(url);
-  if (nbOfArticles > 9) {
-    let pageNumber = 2;
-    let remainder = Math.floor(nbOfArticles / 10);
-    while (remainder !== 0) {
-      remainder -= 1;
-      pages.push(`${url}/page/${pageNumber}/`);
-      pageNumber += 1;
-    }
-  }
-  return pages;
-}
+export default parse;
