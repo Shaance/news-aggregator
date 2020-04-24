@@ -28,7 +28,7 @@ export async function handleNetflixRequest(options: SourceOptions) {
 }
 
 export async function handleUberRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('uber', getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 30), parseUber, options);
+  return handleStaticSourceRequest('uber', getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 20), parseUber, options);
 }
 
 export async function handleAndroidPoliceRequest(options: SourceOptions) {
