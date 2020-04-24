@@ -20,6 +20,7 @@ describe('Uber-blog-parser', () => {
         url: 'https://eng.uber.com/piranha/',
         title: 'Introducing Piranha: An Open Source Tool to Automatically Delete Stale Code',
         date: new Date('2020-03-17T08:30:25+00:00'),
+        author: 'Murali Krishna Ramanathan, Lazaro Clapp, Rajkishore Barik, Manu Sridharan',
         source: 'Uber',
       };
       expect(result[0]).toEqual(expected);

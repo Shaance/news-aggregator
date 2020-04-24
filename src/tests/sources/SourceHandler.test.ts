@@ -110,7 +110,11 @@ describe('SourceHandler class', () => {
       .reply(200, fakeResponse);
 
     const onFulfilled = sinon.spy();
-    const promise = sourceHandler.uber(new SourceOptionsBuilder().build()).then(onFulfilled);
+    const promise = sourceHandler.uber(
+      new SourceOptionsBuilder()
+        .setNumberOfArticles(2)
+        .build(),
+    ).then(onFulfilled);
 
     promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(2);
