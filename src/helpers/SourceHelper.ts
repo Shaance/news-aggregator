@@ -42,7 +42,7 @@ export function getHackerNewsCategoryKeys(): string[] {
 }
 
 export function getAllSourceKeys() {
-  return ['dev-to', 'uber', 'netflix', 'androidpolice', 'hackernews'];
+  return ['dev-to', 'uber', 'netflix', 'androidpolice', 'hackernews', 'facebook'];
 }
 
 /**

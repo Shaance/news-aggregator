@@ -5,6 +5,7 @@ import { Article } from '../@types/Article';
 import parseDevto from './parsers/Dev-to-parser';
 import parseNetflix from './parsers/Netflix-blog-parser';
 import parseUber from './parsers/Uber-blog-parser';
+import parseFacebook from './parsers/Facebook-blog-parser';
 import parseAndroidPolice from './parsers/Android-police-parser';
 import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
 import getFullHtml from './DynamicHtmlLoader';
@@ -29,6 +30,10 @@ export async function handleNetflixRequest(options: SourceOptions) {
 
 export async function handleUberRequest(options: SourceOptions) {
   return handleStaticSourceRequest('uber', getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 20), parseUber, options);
+}
+
+export async function handleFacebookRequest(options: SourceOptions) {
+  return handleDynamicSourceRequest('facebook', 'https://engineering.fb.com/', parseFacebook, options, 'time', '.btn.loadmore-btn');
 }
 
 export async function handleAndroidPoliceRequest(options: SourceOptions) {
@@ -106,6 +111,7 @@ export default (serverless: boolean = false) => {
     androidPolice: (options: SourceOptions) => handleAndroidPoliceRequest(options),
     hackerNews: (options: SourceOptions) => handleHackerNewsRequest(options),
     uber: (options: SourceOptions) => handleUberRequest(options),
+    facebook: (options: SourceOptions) => handleFacebookRequest(options),
     netflix: (options: SourceOptions) => handleNetflixRequest(options),
   };
 };
