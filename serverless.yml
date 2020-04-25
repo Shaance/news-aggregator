@@ -17,7 +17,7 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-3
-  memorySize: 768
+  memorySize: 1024
   timeout: 25
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
