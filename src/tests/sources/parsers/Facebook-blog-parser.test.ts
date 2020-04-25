@@ -19,7 +19,7 @@ describe('Facebook-blog-parser', () => {
       const expected = {
         url: 'https://engineering.fb.com/connectivity/mobile-world-congress-2020/',
         title: 'Accelerating innovations in infrastructure and advancing global connectivity with our partners',
-        date: new Date('2020-03-02T00:00:00+01:00'),
+        date: new Date('2020-03-02T00:00:00'),
         source: 'Facebook',
       };
       expect(result[0]).toEqual(expected);
