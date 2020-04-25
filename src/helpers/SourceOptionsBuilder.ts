@@ -40,16 +40,4 @@ export default class SourceOptionsBuilder {
       category: this.category,
     };
   }
-
-  getForceRefreshStatus() {
-    return this.forceRefresh;
-  }
-
-  getNumberOfArticles() {
-    return this.numberOfArticles;
-  }
-
-  getCategory() {
-    return this.category;
-  }
 }

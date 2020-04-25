@@ -6,9 +6,7 @@ import cors from 'cors';
 import swaggerDocs from './config/SwaggerConfig';
 import { getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys } from './helpers/SourceHelper';
 import config from './config/EnvConfig';
-import source, {
-  handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest, handleFacebookRequest,
-} from './sources/SourceHandler';
+import source from './sources/SourceHandler';
 
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
@@ -327,23 +325,23 @@ function getOptions(req): SourceOptions {
 
 async function updateAllSources() {
   const baseOptionsBuilder = new SourceOptionsBuilder().activateForceRefresh();
-  handleDevToRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => console.error(err));
   getDevToCategoryKeys().forEach((category) => {
-    handleDevToRequest(
+    sourceHandler.devTo(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .setCategory(category)
         .build(),
     ).catch((err) => console.error(err));
   });
-  handleNetflixRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
-  handleUberRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
-  handleAndroidPoliceRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.netflix(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.uber(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => console.error(err));
   getHackerNewsCategoryKeys().forEach((category) => {
-    handleHackerNewsRequest(
+    sourceHandler.hackerNews(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .setCategory(category)
         .build(),
     ).catch((err) => console.error(err));
   });
-  handleFacebookRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => console.error(err));
 }
