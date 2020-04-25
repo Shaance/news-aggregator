@@ -36,15 +36,16 @@ export async function handleAndroidPoliceRequest(options: SourceOptions) {
 }
 
 export async function handleHackerNewsRequest(options: SourceOptions) {
-  let resolvedCategory = getHackerNewsCategory(options.category);
+  const { category, forceRefresh, numberOfArticles } = options;
+  let resolvedCategory = getHackerNewsCategory(category);
   if (!resolvedCategory) {
     // default to best stories
     resolvedCategory = getHackerNewsCategory('best');
   }
   const sourceKey = `hackernews/${resolvedCategory}`;
   let storyUrls: string[] = [];
-  if (serverlessMode || options.forceRefresh || !allArticles.has(sourceKey) || allArticles.get(sourceKey)?.length < options.numberOfArticles) {
-    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, options.numberOfArticles);
+  if (serverlessMode || forceRefresh || !allArticles.has(sourceKey) || allArticles.get(sourceKey)?.length < numberOfArticles) {
+    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, numberOfArticles);
   }
 
   return handleStaticSourceRequest(sourceKey, storyUrls, getArticleFromStory, options);
@@ -62,18 +63,19 @@ async function getStaticResponsesFromUrls(urls: string[], transformFunction: (so
 
 // transformFunction is either a parsing function or a function which call an API
 async function handleStaticSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], options: SourceOptions): Promise<Article[]> {
+  const { forceRefresh, numberOfArticles } = options;
   if (!serverlessMode) {
-    if (options.forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < options.numberOfArticles)) {
+    if (forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles)) {
       logForceRefresh(sourceKey);
       const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
       allArticles.set(sourceKey, parsedArticles);
-      return parsedArticles.slice(0, options.numberOfArticles);
+      return parsedArticles.slice(0, numberOfArticles);
     }
-    return allArticles.get(sourceKey)?.slice(0, options.numberOfArticles);
+    return allArticles.get(sourceKey)?.slice(0, numberOfArticles);
   }
 
   const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
-  return parsedArticles.slice(0, options.numberOfArticles);
+  return parsedArticles.slice(0, numberOfArticles);
 }
 
 async function getDynamicResponsesFromUrls(url: string, transformFunction: (source: any) => Article[], elementToTrack: string, limit: number, loadButton?: string): Promise<Article[]> {
@@ -82,18 +84,19 @@ async function getDynamicResponsesFromUrls(url: string, transformFunction: (sour
 
 async function handleDynamicSourceRequest(sourceKey: string, url: string, transformFunction: (source: any) => Article[],
   options: SourceOptions, elementToTrack: string, loadButton?: string): Promise<Article[]> {
+  const { forceRefresh, numberOfArticles } = options;
   if (!serverlessMode) {
-    if (options.forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < options.numberOfArticles)) {
+    if (forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles)) {
       logForceRefresh(sourceKey);
-      const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, options.numberOfArticles, loadButton);
+      const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, numberOfArticles, loadButton);
       allArticles.set(sourceKey, parsedArticles);
-      return parsedArticles.slice(0, options.numberOfArticles);
+      return parsedArticles.slice(0, numberOfArticles);
     }
-    return allArticles.get(sourceKey)?.slice(0, options.numberOfArticles);
+    return allArticles.get(sourceKey)?.slice(0, numberOfArticles);
   }
 
-  const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, options.numberOfArticles, loadButton);
-  return parsedArticles.slice(0, options.numberOfArticles);
+  const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, numberOfArticles, loadButton);
+  return parsedArticles.slice(0, numberOfArticles);
 }
 
 export default (serverless: boolean = false) => {
