@@ -7,7 +7,7 @@ import swaggerDocs from './config/SwaggerConfig';
 import { getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys } from './helpers/SourceHelper';
 import config from './config/EnvConfig';
 import source, {
-  handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest,
+  handleDevToRequest, handleNetflixRequest, handleUberRequest, handleAndroidPoliceRequest, handleHackerNewsRequest, handleFacebookRequest,
 } from './sources/SourceHandler';
 
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
@@ -65,6 +65,12 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
  *  get:
  *    parameters:
  *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from Netflix
+ *      - in: query
  *        name: forceRefresh
  *        schema:
  *          type: string
@@ -92,6 +98,12 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  *  get:
  *    parameters:
  *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from Uber
+ *      - in: query
  *        name: forceRefresh
  *        schema:
  *          type: string
@@ -109,6 +121,40 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  */
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
   sourceHandler.uber(getOptions(req))
+    .then((articles) => res.json(articles))
+    .catch((error) => next(error));
+});
+
+/**
+ * @swagger
+ *
+ * /api/v1/source/facebook:
+ *  get:
+ *    parameters:
+ *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from Facebook engineering blog
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    description: Fetch articles from Facebook engineering blog, should return an array of Article
+ *    responses:
+ *      '200':
+ *        description: Successful response
+ *        schema:
+ *          type: array
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${sourceApi}/facebook`, async (req, res, next) => {
+  sourceHandler.facebook(getOptions(req))
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -171,7 +217,7 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
  *          type: integer
  *        required: false
  *        description: Article number to fetch from HackerNews
- *    description: Fetch articles from dev-to website
+ *    description: Fetch articles from Hackernews website
  *    responses:
  *      '200':
  *        description: Successful response
@@ -299,4 +345,5 @@ async function updateAllSources() {
         .build(),
     ).catch((err) => console.error(err));
   });
+  handleFacebookRequest(baseOptionsBuilder.build()).catch((err) => console.error(err));
 }

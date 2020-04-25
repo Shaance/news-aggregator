@@ -1,11 +1,11 @@
 export interface HackerNewsItem {
-  id: number;
-  url: string;
-  title: string;
-  kids?: number[]
   by: string;
-  time: number;
   descendants: number;
+  id: number;
+  kids?: number[];
   score: number;
+  time: number;
+  title: string;
   type: string;
+  url: string;
 }

@@ -34,6 +34,12 @@ export const sourceUber: APIGatewayProxyHandler = async (event) => ({
   body: jsonStringifyPretty(await sourceHandler.uber(getOptions(event))),
 });
 
+export const sourceFacebook: APIGatewayProxyHandler = async (event) => ({
+  statusCode: 200,
+  headers,
+  body: jsonStringifyPretty(await sourceHandler.facebook(getOptions(event))),
+});
+
 export const sourceNetflix: APIGatewayProxyHandler = async (event) => ({
   statusCode: 200,
   headers,
