@@ -18,17 +18,17 @@ export default class SourceOptionsBuilder {
     }
   }
 
-  setNumberOfArticles(articles: number) {
+  withArticleNumber(articles: number) {
     this.numberOfArticles = articles;
     return this;
   }
 
-  activateForceRefresh() {
-    this.forceRefresh = true;
+  withForceFreshFlag(flag: boolean = true) {
+    this.forceRefresh = flag;
     return this;
   }
 
-  setCategory(category: string) {
+  withCategory(category: string) {
     this.category = category;
     return this;
   }

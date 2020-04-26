@@ -23,7 +23,7 @@ describe('SourceHandler class', () => {
 
     const onFulfilled = sinon.spy();
     const numberOfArticles = 1;
-    const options = new SourceOptionsBuilder().setNumberOfArticles(numberOfArticles).build();
+    const options = new SourceOptionsBuilder().withArticleNumber(numberOfArticles).build();
     const promise = sourceHandler.androidPolice(options).then(onFulfilled);
 
     promise.then(() => {
@@ -49,8 +49,8 @@ describe('SourceHandler class', () => {
     const numberOfArticles = 1;
 
     const options = new SourceOptionsBuilder()
-      .setNumberOfArticles(numberOfArticles)
-      .setCategory(category)
+      .withArticleNumber(numberOfArticles)
+      .withCategory(category)
       .build();
 
     const promise = sourceHandler.hackerNews(options).then(onFulfilled);
@@ -113,7 +113,7 @@ describe('SourceHandler class', () => {
     const articleNumber = 2;
     const promise = sourceHandler.uber(
       new SourceOptionsBuilder()
-        .setNumberOfArticles(articleNumber)
+        .withArticleNumber(articleNumber)
         .build(),
     ).then(onFulfilled);
 

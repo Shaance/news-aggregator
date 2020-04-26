@@ -299,19 +299,19 @@ cron.schedule(`${refreshFrequency} * * * *`, async () => {
 
 function setNumberOfArticles(req, builder: SourceOptionsBuilder) {
   if (req.query.articleNumber) {
-    builder.setNumberOfArticles(parseInt(req.query.articleNumber, 10));
+    builder.withArticleNumber(parseInt(req.query.articleNumber, 10));
   }
 }
 
 function setCategory(req, builder: SourceOptionsBuilder) {
   if (req.query.category) {
-    builder.setCategory(req.query.category);
+    builder.withCategory(req.query.category);
   }
 }
 
 function setForceRefresh(req, builder: SourceOptionsBuilder) {
   if (req.query.forceRefresh === 'true') {
-    builder.activateForceRefresh();
+    builder.withForceFreshFlag();
   }
 }
 
@@ -324,12 +324,12 @@ function getOptions(req): SourceOptions {
 }
 
 async function updateAllSources() {
-  const baseOptionsBuilder = new SourceOptionsBuilder().activateForceRefresh();
+  const baseOptionsBuilder = new SourceOptionsBuilder().withForceFreshFlag();
   sourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => console.error(err));
   getDevToCategoryKeys().forEach((category) => {
     sourceHandler.devTo(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
-        .setCategory(category)
+        .withCategory(category)
         .build(),
     ).catch((err) => console.error(err));
   });
@@ -339,7 +339,7 @@ async function updateAllSources() {
   getHackerNewsCategoryKeys().forEach((category) => {
     sourceHandler.hackerNews(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
-        .setCategory(category)
+        .withCategory(category)
         .build(),
     ).catch((err) => console.error(err));
   });

@@ -66,13 +66,13 @@ export const sourceDevto: APIGatewayProxyHandler = async (event) => ({
 
 function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.articleNumber) {
-    builder.setNumberOfArticles(parseInt(event.queryStringParameters!.articleNumber, 10));
+    builder.withArticleNumber(parseInt(event.queryStringParameters!.articleNumber, 10));
   }
 }
 
 function setCategory(event, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.category) {
-    builder.setCategory(event.queryStringParameters!.category);
+    builder.withCategory(event.queryStringParameters!.category);
   }
 }
 
