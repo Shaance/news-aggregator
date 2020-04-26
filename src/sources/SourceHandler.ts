@@ -10,8 +10,9 @@ import parseAndroidPolice from './parsers/Android-police-parser';
 import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
 import getFullHtml from './DynamicHtmlLoader';
 import { SourceOptions } from '../@types/SourceOptions';
+import factory from '../config/ConfigLog4j';
 
-
+const logger = factory.getLogger('SourceHandler');
 const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
 let serverlessMode: boolean;
 
@@ -57,7 +58,7 @@ export async function handleHackerNewsRequest(options: SourceOptions) {
 }
 
 function logForceRefresh(source: string) {
-  console.log(`Force refresh articles for ${source}.`);
+  logger.info(`Force refresh articles for ${source}.`);
 }
 
 async function getStaticResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
