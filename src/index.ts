@@ -4,10 +4,12 @@ import { serve, setup } from 'swagger-ui-express';
 import cron from 'node-cron';
 import cors from 'cors';
 import swaggerDocs from './config/SwaggerConfig';
-import { getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys } from './helpers/SourceHelper';
+import {
+  getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys, sourceOptionsToString,
+} from './helpers/SourceHelper';
 import config from './config/EnvConfig';
 import source from './sources/SourceHandler';
-
+import factory from './config/ConfigLog4j';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 
@@ -18,6 +20,7 @@ const sourceApi = '/api/v1/source';
 const { port } = config;
 const { refreshFrequency } = config; // in minutes
 const sourceHandler = source();
+const logger = factory.getLogger('index');
 
 app.use(cors());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
@@ -51,7 +54,9 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  sourceHandler.devTo(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called Dev.to endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.devTo(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -84,7 +89,9 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/netflix`, async (req, res, next) => {
-  sourceHandler.netflix(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called Netflix endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.netflix(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -118,7 +125,9 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
-  sourceHandler.uber(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called Uber endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.uber(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -152,7 +161,9 @@ app.get(`${sourceApi}/uber`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/facebook`, async (req, res, next) => {
-  sourceHandler.facebook(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called Facebook endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.facebook(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -185,7 +196,9 @@ app.get(`${sourceApi}/facebook`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
-  sourceHandler.androidPolice(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called AndroidPolice endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.androidPolice(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -225,7 +238,9 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
  *        description: Error while connecting to the website
  */
 app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
-  sourceHandler.hackerNews(getOptions(req))
+  const options = getOptions(req);
+  logger.info(`Called HackerNews endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.hackerNews(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -288,12 +303,12 @@ app.get('/api/v1/info/sources', (_, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  logger.info(`App listening at http://localhost:${port}`);
   updateAllSources();
 });
 
 cron.schedule(`${refreshFrequency} * * * *`, async () => {
-  console.log('Refreshing all articles');
+  logger.info('Refreshing all articles');
   updateAllSources();
 });
 
@@ -325,23 +340,23 @@ function getOptions(req): SourceOptions {
 
 async function updateAllSources() {
   const baseOptionsBuilder = new SourceOptionsBuilder().withForceFreshFlag();
-  sourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => logger.error(err));
   getDevToCategoryKeys().forEach((category) => {
     sourceHandler.devTo(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .withCategory(category)
         .build(),
-    ).catch((err) => console.error(err));
+    ).catch((err) => logger.error(err));
   });
-  sourceHandler.netflix(baseOptionsBuilder.build()).catch((err) => console.error(err));
-  sourceHandler.uber(baseOptionsBuilder.build()).catch((err) => console.error(err));
-  sourceHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.netflix(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceHandler.uber(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => logger.error(err));
   getHackerNewsCategoryKeys().forEach((category) => {
     sourceHandler.hackerNews(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .withCategory(category)
         .build(),
-    ).catch((err) => console.error(err));
+    ).catch((err) => logger.error(err));
   });
-  sourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => console.error(err));
+  sourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => logger.error(err));
 }

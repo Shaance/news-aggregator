@@ -1,3 +1,5 @@
+import { SourceOptions } from "../@types/SourceOptions";
+
 const devToCategories = new Map([
   ['week', 'top/week'],
   ['month', 'top/month'],
@@ -64,4 +66,9 @@ export function getUrlsFromPaginatedSource(url: string, nbOfArticles: number, ar
     }
   }
   return pages;
+}
+
+export function sourceOptionsToString(options: SourceOptions) {
+  const { forceRefresh, category, numberOfArticles } = options;
+  return `forceRefresh: ${forceRefresh}, category:${category}, numberOfArticles: ${numberOfArticles}`;
 }

@@ -1,10 +1,14 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys } from './helpers/SourceHelper';
+import {
+  getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString,
+} from './helpers/SourceHelper';
 import source from './sources/SourceHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
+import factory from './config/ConfigLog4j';
 
+const logger = factory.getLogger('indexServerless');
 const sourceHandler = source(true);
 const headers = {
   'Content-Type': 'application/json; charset=UTF-8',
@@ -28,41 +32,65 @@ export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async () => ({
   body: jsonStringifyPretty(getHackerNewsCategoryKeys()),
 });
 
-export const sourceUber: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.uber(getOptions(event))),
-});
+export const sourceUber: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called Uber endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.uber(options)),
+  };
+};
 
-export const sourceFacebook: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.facebook(getOptions(event))),
-});
+export const sourceFacebook: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called Facebook endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.facebook(options)),
+  };
+};
 
-export const sourceNetflix: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.netflix(getOptions(event))),
-});
+export const sourceNetflix: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called Netflix endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.netflix(options)),
+  };
+};
 
-export const sourceHackernews: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.hackerNews(getOptions(event))),
-});
+export const sourceHackernews: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called HackerNews endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.hackerNews(options)),
+  };
+};
 
-export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.androidPolice(getOptions(event))),
-});
+export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called AndroidPolice endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.androidPolice(options)),
+  };
+};
 
-export const sourceDevto: APIGatewayProxyHandler = async (event) => ({
-  statusCode: 200,
-  headers,
-  body: jsonStringifyPretty(await sourceHandler.devTo(getOptions(event))),
-});
+export const sourceDevto: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called Dev.to endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.devTo(options)),
+  };
+};
 
 function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.articleNumber) {
