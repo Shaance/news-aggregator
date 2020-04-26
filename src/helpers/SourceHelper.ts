@@ -1,4 +1,4 @@
-import { SourceOptions } from "../@types/SourceOptions";
+import { SourceOptions } from '../@types/SourceOptions';
 
 const devToCategories = new Map([
   ['week', 'top/week'],
