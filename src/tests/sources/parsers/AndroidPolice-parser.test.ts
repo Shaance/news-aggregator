@@ -21,6 +21,7 @@ describe('AndroidPolice-blog-parser', () => {
         title: 'Google completely ruined shared folders in Drive (Update: Workaround, Google shares longterm plan)',
         date: new Date('2020-04-10T03:15:39-07:00'),
         author: 'Rita El Khoury',
+        imageUrl: 'https://www.androidpolice.com/wp-content/themes/ap2/ap_resize/ap_resize.php?src=https%3A%2F%2Fwww.androidpolice.com%2Fwp-content%2Fuploads%2F2020%2F04%2Fgoogle-drive-shared-folder-ruined.png&w=728',
         source: 'Android Police',
       };
       expect(result[0]).toEqual(expected);
