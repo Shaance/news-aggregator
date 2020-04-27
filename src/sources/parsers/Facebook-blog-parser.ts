@@ -18,7 +18,7 @@ function parse(html: string): Article[] {
       url: datum.attribs.href,
       title: clean(datum.children[0].data),
       date: new Date(dates[idx].attribs.datetime),
-      imageUrl: images[0].attribs['data-src'],
+      imageUrl: images[idx].attribs['data-src'],
       source: 'Facebook',
     });
   });
