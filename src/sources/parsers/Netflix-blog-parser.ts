@@ -30,7 +30,7 @@ function parse(html: string): Article[] {
       }
     }
 
-    if (articleElement[idx + 1].length === 2) {
+    if (articleElement[idx + 1]?.length === 2) {
       const { style } = articleElement[idx + 1][0].children[0].attribs;
       const tmpUrl = extractImageUrlFromStyleElement(style);
       if (tmpUrl) {

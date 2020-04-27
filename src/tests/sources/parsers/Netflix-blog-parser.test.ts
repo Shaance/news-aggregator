@@ -27,11 +27,4 @@ describe('Netflix-blog-parser', () => {
       expect(result[0]).toEqual(expected);
     });
   });
-
-  it('Should return imageUrl in Article when available', async () => {
-    fs.readFile(pathToSample, encoding, async (_, data) => {
-      const result = parse(data);
-      expect(result[1].imageUrl).toBeDefined();
-    });
-  });
 });
