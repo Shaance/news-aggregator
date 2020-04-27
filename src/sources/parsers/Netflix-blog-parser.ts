@@ -7,7 +7,7 @@ function parse(html: string): Article[] {
   const $ = load(html);
   const links = $('a').toArray().filter((elem) => elem.attribs['data-post-id']);
   const dates = $('time').toArray();
-  const articleElement = $('.col.u-xs-size12of12').toArray().map((elem) => elem.children.filter((child) => child.name === 'div'));
+  const articleElement = $('.col.u-xs-size12of12').toArray().map((elem) => elem.children);
   const authors = $('.u-fontSize18.u-letterSpacingTight.u-lineHeightTight').toArray().map((elem) => elem.children[0].data);
   const titles = $('.u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis')
     .toArray().map((title) => title.children[0]);
@@ -21,8 +21,17 @@ function parse(html: string): Article[] {
       source: 'Netflix',
     };
 
-    if (articleElement[idx].length === 2) {
+    // Netflix first article is constructed in different way ...
+    if (idx === 0 && articleElement[idx].length === 1) {
       const { style } = articleElement[idx][0].children[0].attribs;
+      const tmpUrl = extractImageUrlFromStyleElement(style);
+      if (tmpUrl) {
+        article.imageUrl = tmpUrl;
+      }
+    }
+
+    if (articleElement[idx + 1].length === 2) {
+      const { style } = articleElement[idx + 1][0].children[0].attribs;
       const tmpUrl = extractImageUrlFromStyleElement(style);
       if (tmpUrl) {
         article.imageUrl = tmpUrl;
