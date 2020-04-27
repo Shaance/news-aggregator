@@ -9,7 +9,7 @@ function parse(html: string): Article[] {
     .map((datum) => datum.children[0]);
   const dates = $('time.timeago').toArray();
   const authors = $('a.author-name').toArray().map((elem) => elem.children[0].data);
-  const images = $('.img-hero').toArray();
+  const images = $('.post-hero').toArray().map((elem) => elem.children[0]);
 
   data.forEach((datum, idx) => {
     results.push({
