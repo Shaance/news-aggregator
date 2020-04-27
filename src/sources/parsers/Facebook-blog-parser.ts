@@ -11,12 +11,14 @@ function parse(html: string): Article[] {
   const $ = load(html);
   const data = $('.entry-title').toArray().slice(1).map((datum) => datum.children[1].children[1]);
   const dates = $('time').toArray();
+  const images = $('.attachment-thumbnail.size-thumbnail').toArray();
 
   data.forEach((datum, idx) => {
     results.push({
       url: datum.attribs.href,
       title: clean(datum.children[0].data),
       date: new Date(dates[idx].attribs.datetime),
+      imageUrl: images[0].attribs['data-src'],
       source: 'Facebook',
     });
   });
