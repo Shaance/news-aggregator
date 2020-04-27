@@ -10,6 +10,7 @@ function parse(html: string): Article[] {
     .map((tag) => tag.children[0].data).join(', '));
   const data = articleModules.map((module) => module.children[0]);
   const dates = $('time').toArray();
+  const images = $('.td-module-thumb').toArray().map((elem) => elem.children[0].children[0]);
 
   data.forEach((datum, idx) => {
     results.push({
@@ -17,6 +18,7 @@ function parse(html: string): Article[] {
       title: datum.attribs.title,
       date: new Date(dates[idx].attribs.datetime),
       author: authors[idx],
+      imageUrl: images[idx].attribs['data-img-url'],
       source: 'Uber',
     });
   });
