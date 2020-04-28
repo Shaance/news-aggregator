@@ -19,6 +19,6 @@ ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_a
 RUN chmod +x /usr/local/bin/dumb-init
 ENTRYPOINT ["dumb-init", "--"]
 
-RUN npm ci && npm run build
+RUN npm ci
 
 CMD npm run start
