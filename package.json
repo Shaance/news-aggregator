@@ -4,7 +4,7 @@
   "description": "news-aggregator API",
   "main": "lib/index.js",
   "scripts": {
-    "start": "node lib/index.js",
+    "start": "npm run build && NODE_ENV=production node lib/index.js",
     "start:dev": "ts-node-dev --respawn src/*.ts",
     "start:lambda": "serverless offline start --skipCacheInvalidation",
     "build": "tsc -p .",
@@ -27,6 +27,7 @@
     "@types/puppeteer": "^2.0.1",
     "cheerio": "^1.0.0-rc.3",
     "chrome-aws-lambda": "^2.1.1",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import express from 'express';
+import compression from 'compression';
 import { serve, setup } from 'swagger-ui-express';
 import cron from 'node-cron';
 import cors from 'cors';
@@ -23,6 +24,7 @@ const sourceHandler = source();
 const logger = factory.getLogger('index');
 
 app.use(cors());
+app.use(compression());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
 
 /**
