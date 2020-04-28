@@ -6,10 +6,10 @@ const pathToSample = path.join('res', 'tests', 'netflix-blog-sample.html');
 const encoding = 'UTF-8';
 
 describe('Netflix-blog-parser', () => {
-  it('parse function should return 3', async () => {
+  it('parse function should return 2', async () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
-      expect(result.length).toBe(3);
+      expect(result.length).toBe(2);
     });
   });
 
@@ -17,14 +17,14 @@ describe('Netflix-blog-parser', () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
       const expected = {
-        url: 'https://netflixtechblog.com/bringing-4k-and-hdr-to-anime-at-netflix-with-sol-levante'
-          + '-fa68105067cd?source=collection_home---4------0-----------------------',
-        title: 'Bringing 4K and HDR to Anime at Netflix with Sol Levante',
-        author: 'Haruka Miyagawa & Kylee Peña',
-        date: new Date('2020-04-02T07:01:00.929Z'),
+        url: 'https://netflixtechblog.com/svt-av1-an-open-source-av1-encoder-and-decoder'
+        + '-ad295d9b5ca2?source=collection_home---4------0-----------------------',
+        title: 'SVT-AV1: an open-source AV1 encoder and decoder',
+        author: 'Andrey Norkin, Joel Sole, Mariana Afonso, Kyle Swanson, Agata Opalach, Anush Moorthy, Anne Aaron',
+        date: new Date('2020-03-13T17:21:00.833Z'),
         source: 'Netflix',
       };
-      expect(result[0]).toEqual(expected);
+      expect(result[1]).toEqual(expected);
     });
   });
 });

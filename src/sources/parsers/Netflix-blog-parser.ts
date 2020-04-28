@@ -8,6 +8,11 @@ function parse(html: string): Article[] {
   const links = $('a').toArray().filter((elem) => elem.attribs['data-post-id']);
   const dates = $('time').toArray();
   const articleElement = $('.col.u-xs-size12of12').toArray().map((elem) => elem.children);
+
+  /* Netflix has the 1st article formed from 2 article elements instead of 1 for all other articles
+   * The first element has the image the second one is only text
+   */
+  articleElement.splice(1, 1);
   const authors = $('.u-fontSize18.u-letterSpacingTight.u-lineHeightTight').toArray().map((elem) => elem.children[0].data);
   const titles = $('.u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis')
     .toArray().map((title) => title.children[0]);
@@ -17,25 +22,14 @@ function parse(html: string): Article[] {
       title: clean(title.data as string),
       url: links[idx].attribs.href,
       date: new Date(dates[idx].attribs.datetime),
-      author: clean(authors[idx]).replace('By ', ''),
+      author: clean(authors[idx]).replace(/(By |by )/, ''),
       source: 'Netflix',
     };
 
-    // Netflix first article is constructed in different way ...
-    if (idx === 0 && articleElement[idx].length === 1) {
+    // Netflix first article is constructed in different way
+    if ((idx === 0 && articleElement[idx].length === 1) || articleElement[idx]?.length === 2) {
       const { style } = articleElement[idx][0].children[0].attribs;
-      const tmpUrl = extractImageUrlFromStyleElement(style);
-      if (tmpUrl) {
-        article.imageUrl = tmpUrl;
-      }
-    }
-
-    if (articleElement[idx + 1]?.length === 2) {
-      const { style } = articleElement[idx + 1][0].children[0].attribs;
-      const tmpUrl = extractImageUrlFromStyleElement(style);
-      if (tmpUrl) {
-        article.imageUrl = tmpUrl;
-      }
+      article.imageUrl = extractImageUrlFromStyleElement(style);
     }
 
     results.push(article);
@@ -49,10 +43,7 @@ function parse(html: string): Article[] {
  */
 function extractImageUrlFromStyleElement(styleElement: string) {
   const regex: RegExp = /url\("(.+)"/;
-  if (regex.test(styleElement)) {
-    return styleElement.match(regex)[1];
-  }
-  return null;
+  return styleElement.match(regex)[1];
 }
 
 export default parse;
