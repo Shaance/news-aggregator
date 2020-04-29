@@ -1,4 +1,12 @@
-export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+export const capitalize = (s: string) => {
+  if (s) {
+    if (s.length > 1) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+    return s.charAt(0).toUpperCase();
+  }
+  return '';
+};
 
 // remove newlines and trim
 export function clean(src: string | undefined) {
