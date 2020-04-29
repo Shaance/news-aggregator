@@ -5,15 +5,15 @@ import parse from '../../../sources/parsers/Facebook-blog-parser';
 const pathToSample = path.join('res', 'tests', 'facebook-blog-sample.html');
 const encoding = 'UTF-8';
 
-describe('Facebook-blog-parser', () => {
-  it('should return 1 when parse function is called', async () => {
+describe('Facebook-blog-parser parse function', () => {
+  it('should return 1 article', async () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
       expect(result.length).toBe(1); // first article is discarded as it's missing date
     });
   });
 
-  it('parse function should return Article object with correct info', async () => {
+  it('should return Article object with correct info', async () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
       const expected = {

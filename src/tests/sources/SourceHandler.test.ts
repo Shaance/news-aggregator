@@ -7,12 +7,10 @@ import source from '../../sources/SourceHandler';
 import { getHackerNewsCategory } from '../../helpers/SourceHelper';
 import SourceOptionsBuilder from '../../helpers/SourceOptionsBuilder';
 
-// TODO find a way to mock pupeeter
-
 const sourceHandler = source();
 
-describe('SourceHandler class', () => {
-  it('should call the right URL and numberOfArticles slice results when androidPolice method is called', (done) => {
+describe('SourceHandler androidPolice function', () => {
+  it('should call the right URL and get the right number of articles', (done) => {
     // two articles from html
     const pathToSample = path.join('res', 'tests', 'android-police-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
@@ -31,8 +29,10 @@ describe('SourceHandler class', () => {
       done();
     });
   });
+});
 
-  it('should call the right URL, resolve right category and numberOfArticles slice results when hackernews method is called', (done) => {
+describe('SourceHandler hackernews function', () => {
+  it('should call the right URL and get the right number of articles', (done) => {
     const pathToSample = path.join('res', 'tests', 'hacker-news-item-sample.json');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
     const category = 'new';
@@ -60,7 +60,34 @@ describe('SourceHandler class', () => {
       done();
     });
   });
+});
 
+describe('SourceHandler uber function', () => {
+  it('should call the right URL when uber method is called', (done) => {
+    const pathToSample = path.join('res', 'tests', 'uber-blog-sample.html');
+    const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
+
+    nock('https://eng.uber.com')
+      .get('/')
+      .reply(200, fakeResponse);
+
+    const onFulfilled = sinon.spy();
+    const articleNumber = 2;
+    const promise = sourceHandler.uber(
+      new SourceOptionsBuilder()
+        .withArticleNumber(articleNumber)
+        .build(),
+    ).then(onFulfilled);
+
+    promise.then(() => {
+      expect(onFulfilled.getCall(0).args[0].length).toEqual(articleNumber);
+      done();
+    });
+  });
+});
+
+// TODO find a way to mock pupeeter
+describe('SourceHandler class', () => {
   // it('should call the right URL and resolve category when dev-to method is called', (done) => {
   //   const pathToSample = path.join('res', 'tests', 'dev-to-sample.html');
   //   const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
@@ -100,28 +127,6 @@ describe('SourceHandler class', () => {
   //     done();
   //   });
   // });
-
-  it('should call the right URL when uber method is called', (done) => {
-    const pathToSample = path.join('res', 'tests', 'uber-blog-sample.html');
-    const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
-
-    nock('https://eng.uber.com')
-      .get('/')
-      .reply(200, fakeResponse);
-
-    const onFulfilled = sinon.spy();
-    const articleNumber = 2;
-    const promise = sourceHandler.uber(
-      new SourceOptionsBuilder()
-        .withArticleNumber(articleNumber)
-        .build(),
-    ).then(onFulfilled);
-
-    promise.then(() => {
-      expect(onFulfilled.getCall(0).args[0].length).toEqual(articleNumber);
-      done();
-    });
-  });
 
   // it('should call the right URL netflix method is called', (done) => {
   //   const pathToSample = path.join('res', 'tests', 'netflix-blog-sample.html');
