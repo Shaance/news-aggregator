@@ -14,8 +14,6 @@ import factory from './config/ConfigLog4j';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 
-// TODO use logger instead of console.log
-
 const app = express();
 const sourceApi = '/api/v1/source';
 const { port } = config;
