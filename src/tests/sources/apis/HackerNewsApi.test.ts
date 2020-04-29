@@ -5,8 +5,8 @@ import { getArticleFromStory } from '../../../sources/apis/HackerNewsApi';
 const pathToItemSample = path.join('res', 'tests', 'hacker-news-item-sample.json');
 const encoding = 'UTF-8';
 
-describe('HackerNews api', () => {
-  it('parse function should return Article object with correct info', async () => {
+describe('HackerNews api parse function', () => {
+  it('should return Article object with correct info', async () => {
     fs.readFile(pathToItemSample, encoding, async (_, data) => {
       const result = getArticleFromStory(data);
       const expected = {
