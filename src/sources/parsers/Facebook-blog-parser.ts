@@ -9,7 +9,9 @@ import { clean } from '../../helpers/String';
 function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
-  const data = $('.entry-title').toArray().slice(1).map((datum) => datum.children[1].children[1]);
+  const data = $('.entry-title').toArray().slice(1)
+    .flatMap((datum) => datum.children.filter(((c) => c.name === 'div')))
+    .flatMap((datum) => datum.children.filter((c) => c.attribs?.rel === 'bookmark'));
   const dates = $('time').toArray();
   const images = $('.attachment-thumbnail.size-thumbnail').toArray();
 
