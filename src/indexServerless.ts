@@ -92,6 +92,16 @@ export const sourceDevto: APIGatewayProxyHandler = async (event) => {
   };
 };
 
+export const sourceHighScalability: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called High Scalability endpoint with options: ${sourceOptionsToString(options)}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await sourceHandler.highScalability(options)),
+  };
+};
+
 function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.articleNumber) {
     builder.withArticleNumber(parseInt(event.queryStringParameters!.articleNumber, 10));

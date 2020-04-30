@@ -77,3 +77,9 @@ functions:
       - http:
           path: /api/v1/source/dev-to
           method: get
+  sourceHighScalability:
+    handler: src/indexServerless.sourceHighScalability
+    events:
+      - http:
+          path: /api/v1/source/highscalability
+          method: get

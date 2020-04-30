@@ -206,6 +206,41 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
 /**
  * @swagger
  *
+ * /api/v1/source/highscalability:
+ *  get:
+ *    parameters:
+ *      - in: query
+ *        name: articleNumber
+ *        schema:
+ *          type: integer
+ *        required: false
+ *        description: Article number to fetch from High Scalability
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    responses:
+ *      '200':
+ *        description: Successful response
+ *        schema:
+ *          type: array
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${sourceApi}/highscalability`, async (req, res, next) => {
+  const options = getOptions(req);
+  logger.info(`Called Highscalability endpoint with options: ${sourceOptionsToString(options)}`);
+  sourceHandler.highScalability(options)
+    .then((articles) => res.json(articles))
+    .catch((error) => next(error));
+});
+
+/**
+ * @swagger
+ *
  * /api/v1/source/hackernews:
  *  get:
  *    parameters:
@@ -359,4 +394,5 @@ async function updateAllSources() {
     ).catch((err) => logger.error(err));
   });
   sourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceHandler.highScalability(baseOptionsBuilder.build()).catch((err) => logger.error(err));
 }
