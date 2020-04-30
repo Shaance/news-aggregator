@@ -11,15 +11,14 @@ const twelveToTwentyFourHourFormat = (time: string) => {
     let hour = time.match(regex)[1];
     const minute = time.match(regex)[2];
     const period = time.match(regex)[3];
-    if (parseInt(hour) === 12) {
-      hour = "00";
+    if (parseInt(hour, 10) === 12) {
+      hour = '00';
     }
-    hour = period === 'PM' ? (parseInt(hour) + 12).toString() : hour
+    hour = period === 'PM' ? (parseInt(hour, 10) + 12).toString() : hour;
     return `${hour}:${minute}:00`;
   }
-
   return '';
-}
+};
 
 // Monday, April 27, 2020 at 9:18AM
 const parseDate = (date: string) => {
@@ -27,7 +26,7 @@ const parseDate = (date: string) => {
   const hour = twelveToTwentyFourHourFormat(date.match(regex)[2]);
 
   return hour ? new Date(`${date.match(regex)[1]} ${hour}`) : null;
-}
+};
 
 function parse(html: string): Article[] {
   const results: Article[] = [];
@@ -46,9 +45,8 @@ function parse(html: string): Article[] {
       const imageElem = elem.children.filter((c) => c.name === 'div' && c.attribs?.align === 'center');
       if (imageElem && imageElem.length > 0) {
         return imageElem[0].children[0].attribs?.src;
-      } else {
-        return null;
       }
+      return null;
     });
 
   const dates = data
@@ -58,7 +56,7 @@ function parse(html: string): Article[] {
     .map((elem) => elem.data);
 
   data.forEach((_, idx) => {
-    let article: Article = {
+    const article: Article = {
       url: baseUrl + titlesAndUrls[idx].attribs.href,
       title: clean(titlesAndUrls[idx].children[0].data),
       date: parseDate(dates[idx].trim()),
@@ -73,8 +71,6 @@ function parse(html: string): Article[] {
   });
 
   return results;
-
 }
-
 
 export default parse;

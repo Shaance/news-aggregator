@@ -27,4 +27,3 @@ describe('High-scalability-parser parse function', () => {
     });
   });
 });
-
