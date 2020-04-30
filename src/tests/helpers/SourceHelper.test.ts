@@ -7,8 +7,8 @@ import SourceOptionsBuilder from '../../helpers/SourceOptionsBuilder';
 describe('SourceHelper getPagesFromArticleNumbers function', () => {
   it('should return original url if number of articles is < 10', () => {
     const url = 'testurl.com';
-    const result1 = getUrlsFromPaginatedSource(url, -30, 10);
-    const result2 = getUrlsFromPaginatedSource(url, 5, 10);
+    const result1 = getUrlsFromPaginatedSource(url, -30, 10, '/page/');
+    const result2 = getUrlsFromPaginatedSource(url, 5, 10, '/page/');
     const expected = [url];
     expect(result1).toEqual(expected);
     expect(result2).toEqual(expected);
@@ -16,8 +16,8 @@ describe('SourceHelper getPagesFromArticleNumbers function', () => {
 
   it('should return original url + pages if number of articles is > 10', () => {
     const url = 'testurl.com';
-    const result = getUrlsFromPaginatedSource(url, 25, 10);
-    const expected = [url, `${url}/page/2/`, `${url}/page/3/`];
+    const result = getUrlsFromPaginatedSource(url, 25, 10, '/page/');
+    const expected = [url, `${url}/page/2`, `${url}/page/3`];
     expect(result).toEqual(expected);
   });
 });

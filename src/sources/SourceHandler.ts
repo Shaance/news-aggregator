@@ -7,6 +7,7 @@ import parseNetflix from './parsers/Netflix-blog-parser';
 import parseUber from './parsers/Uber-blog-parser';
 import parseFacebook from './parsers/Facebook-blog-parser';
 import parseAndroidPolice from './parsers/Android-police-parser';
+import parseHighScalability from './parsers/High-scalability-parser';
 import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
 import getFullHtml from './DynamicHtmlLoader';
 import { SourceOptions } from '../@types/SourceOptions';
@@ -30,7 +31,8 @@ export async function handleNetflixRequest(options: SourceOptions) {
 }
 
 export async function handleUberRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('uber', getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 20), parseUber, options);
+  const urls = getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 20, '/page/');
+  return handleStaticSourceRequest('uber', urls, parseUber, options);
 }
 
 export async function handleFacebookRequest(options: SourceOptions) {
@@ -38,7 +40,13 @@ export async function handleFacebookRequest(options: SourceOptions) {
 }
 
 export async function handleAndroidPoliceRequest(options: SourceOptions) {
-  return handleStaticSourceRequest('androidpolice', getUrlsFromPaginatedSource('https://www.androidpolice.com/', options.numberOfArticles, 10), parseAndroidPolice, options);
+  const urls = getUrlsFromPaginatedSource('https://www.androidpolice.com/', options.numberOfArticles, 10, '/page/');
+  return handleStaticSourceRequest('androidpolice', urls, parseAndroidPolice, options);
+}
+
+export async function handleHighScalibility(options: SourceOptions) {
+  const urls = getUrlsFromPaginatedSource('http://highscalability.com/', options.numberOfArticles, 5, 'blog/?currentPage=');
+  return handleStaticSourceRequest('highscalability', urls, parseHighScalability, options);
 }
 
 export async function handleHackerNewsRequest(options: SourceOptions) {
@@ -110,6 +118,7 @@ export default (serverless: boolean = false) => {
   return {
     devTo: (options: SourceOptions) => handleDevToRequest(options),
     androidPolice: (options: SourceOptions) => handleAndroidPoliceRequest(options),
+    highScalability: (options: SourceOptions) => handleHighScalibility(options),
     hackerNews: (options: SourceOptions) => handleHackerNewsRequest(options),
     uber: (options: SourceOptions) => handleUberRequest(options),
     facebook: (options: SourceOptions) => handleFacebookRequest(options),
