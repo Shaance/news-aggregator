@@ -44,7 +44,9 @@ function parse(html: string): Article[] {
     .map((elem) => {
       const imageElem = elem.children.filter((c) => c.name === 'div' && c.attribs?.align === 'center');
       if (imageElem && imageElem.length > 0) {
-        return imageElem[0].children[0].attribs?.src;
+        const youtubeEmbededContent = 'https://www.youtube.com/embed';
+        const parsedImgSrc = imageElem[0].children[0].attribs?.src;
+        return parsedImgSrc?.includes(youtubeEmbededContent) ? null : parsedImgSrc;
       }
       return null;
     });
