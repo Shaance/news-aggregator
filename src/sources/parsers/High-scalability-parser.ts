@@ -31,16 +31,29 @@ const parseDate = (date: string) => {
 function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
-  const data = $('.journal-entry-wrapper')
+
+  const data = $('div')
+    .filter('.journal-entry-wrapper')
+    .not(() => $(this).attr('class') === 'sponsored')
+    .children('.journal-entry')
+    .children('.journal-entry-text')
+    .filter('.journal-entry-text');
+
+  const titlesAndUrls2 = data
+    .children('h2')
+    .children('a');
+
+  const urls = titlesAndUrls2
     .toArray()
-    .filter((entry) => !entry.attribs.class?.includes('sponsored'))
-    .map((entry) => entry.children[1])
-    .flatMap((datum) => datum.children.filter((c) => c.attribs?.class?.includes('journal-entry-text')));
+    .map((e) => e.attribs.href);
 
-  const titlesAndUrls = data.flatMap((entry) => entry.children.filter((c) => c.name === 'h2'))
-    .flatMap((elem) => elem.children.filter((c) => c.name === 'a'));
+  const titles = titlesAndUrls2
+    .toArray()
+    .map((e) => e.firstChild.data);
 
-  const images = data.flatMap((entry) => entry.children.filter((c) => c.attribs?.class === 'body'))
+  const images = data
+    .children('.body')
+    .toArray()
     .map((elem) => {
       const imageElem = elem.children.filter((c) => c.name === 'div' && c.attribs?.align === 'center');
       if (imageElem && imageElem.length > 0) {
@@ -52,15 +65,16 @@ function parse(html: string): Article[] {
     });
 
   const dates = data
-    .flatMap((entry) => entry.children.filter((c) => c.attribs?.class?.includes('journal-entry-tag')))
-    .flatMap((elem) => elem.children.filter((c) => c.name === 'span'))
-    .flatMap((elem) => elem.children.filter((c) => c.type === 'text' && c.data.length > 15))
-    .map((elem) => elem.data);
+    .children('.journal-entry-tag')
+    .children('.posted-on')
+    .filter((_, e) => e.lastChild.data.length > 15)
+    .toArray()
+    .map((e) => e.lastChild.data);
 
-  data.forEach((_, idx) => {
+  data.toArray().forEach((_, idx) => {
     const article: Article = {
-      url: baseUrl + titlesAndUrls[idx].attribs.href,
-      title: clean(titlesAndUrls[idx].children[0].data),
+      url: baseUrl + urls[idx],
+      title: clean(titles[idx]),
       date: parseDate(dates[idx].trim()),
       source: 'High scalability',
     };
