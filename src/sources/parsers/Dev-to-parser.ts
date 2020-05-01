@@ -26,7 +26,7 @@ function parse(html: string): Article[] {
   const titles = $('h3')
     .toArray()
     .filter((h3) => h3.parent.attribs.class === 'content-wrapper' || h3.parent.attribs.class === 'content')
-    .map((h3) => h3.firstChild.data);
+    .map((h3) => h3.lastChild.data);
 
   let articleLinks = $('a.index-article-link').toArray();
   // TODO investigate why the first element is duplicated?
