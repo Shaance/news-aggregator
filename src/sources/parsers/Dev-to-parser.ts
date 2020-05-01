@@ -9,7 +9,7 @@ const baseUrl = 'https://dev.to';
 * and need to transform it to i got the job 3 tips on how you can get your dream job
 */
 function extractTitleFromUrl(url: string) {
-  const regex: RegExp = /^\/.+\/((\w|\d)+-){2,}/;
+  const regex: RegExp = /^\/.+\/((\w|\d)+-)+/;
   if (regex.test(url)) {
     const res = url.split('/')[2].split('-');
     res.pop(); // last id part
@@ -23,9 +23,10 @@ function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
   const metadata = $('time').toArray();
-  const titles = $('h3').toArray()
+  const titles = $('h3')
+    .toArray()
     .filter((h3) => h3.parent.attribs.class === 'content-wrapper' || h3.parent.attribs.class === 'content')
-    .map((h3) => h3.children[0].data);
+    .map((h3) => h3.lastChild.data);
 
   let articleLinks = $('a.index-article-link').toArray();
   // TODO investigate why the first element is duplicated?
