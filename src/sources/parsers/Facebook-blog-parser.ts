@@ -9,18 +9,26 @@ import { clean } from '../../helpers/String';
 function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
-  const data = $('.entry-title').toArray().slice(1)
-    .flatMap((datum) => datum.children.filter(((c) => c.name === 'div')))
-    .flatMap((datum) => datum.children.filter((c) => c.attribs?.rel === 'bookmark'));
-  const dates = $('time').toArray();
-  const images = $('.attachment-thumbnail.size-thumbnail').toArray();
+  const data = $('.entry-title')
+    .children('div')
+    .children('a')
+    .toArray()
+    .slice(1);
+
+  const dates = $('time')
+    .toArray()
+    .map((e) => e.attribs.datetime);
+
+  const images = $('.attachment-thumbnail.size-thumbnail')
+    .toArray()
+    .map((e) => e.attribs['data-src']);
 
   data.forEach((datum, idx) => {
     results.push({
       url: datum.attribs.href,
-      title: clean(datum.children[0].data),
-      date: new Date(dates[idx].attribs.datetime),
-      imageUrl: images[idx].attribs['data-src'],
+      title: clean(datum.firstChild.data),
+      date: new Date(dates[idx]),
+      imageUrl: images[idx],
       source: 'Facebook',
     });
   });

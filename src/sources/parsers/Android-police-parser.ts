@@ -5,11 +5,13 @@ import { clean } from '../../helpers/String';
 function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
-  const data = $('h2').toArray().filter((elem) => elem.attribs.itemprop)
-    .map((datum) => datum.children[0]);
+  const data = $('h2')
+    .toArray()
+    .filter((elem) => elem.attribs.itemprop)
+    .map((datum) => datum.firstChild);
   const dates = $('time.timeago').toArray();
-  const authors = $('a.author-name').toArray().map((elem) => elem.children[0].data);
-  const images = $('.post-hero').toArray().map((elem) => elem.children[0]);
+  const authors = $('a.author-name').toArray().map((elem) => elem.firstChild.data);
+  const images = $('.post-hero').toArray().map((elem) => elem.firstChild);
 
   data.forEach((datum, idx) => {
     results.push({
