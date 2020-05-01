@@ -10,8 +10,12 @@ function parse(html: string): Article[] {
     .filter((elem) => elem.attribs.itemprop)
     .map((datum) => datum.firstChild);
   const dates = $('time.timeago').toArray();
-  const authors = $('a.author-name').toArray().map((elem) => elem.firstChild.data);
-  const images = $('.post-hero').toArray().map((elem) => elem.firstChild);
+  const authors = $('a.author-name')
+    .toArray()
+    .map((elem) => elem.firstChild.data);
+  const images = $('.post-hero')
+    .toArray()
+    .map((elem) => elem.firstChild);
 
   data.forEach((datum, idx) => {
     results.push({
