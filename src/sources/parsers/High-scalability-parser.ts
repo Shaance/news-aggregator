@@ -76,7 +76,7 @@ function parse(html: string): Article[] {
       url: baseUrl + urls[idx],
       title: clean(titles[idx]),
       date: parseDate(dates[idx].trim()),
-      source: 'High scalability',
+      source: 'highscalability',
     };
 
     if (images[idx]) {

@@ -2,6 +2,9 @@
 /* eslint-disable max-len */
 import chromium from 'chrome-aws-lambda';
 import { Page, Browser } from 'puppeteer-core';
+import factory from '../config/ConfigLog4j';
+
+const logger = factory.getLogger('DynamicHtmlLoader');
 
 async function getCount(page: Page, elementToTrack: string) {
   await page.waitForSelector(elementToTrack);
@@ -51,7 +54,6 @@ async function clickUntilLimit(page: Page, elementToTrack: string, limit: number
  * otherwise will scroll to load page
  */
 async function getFullHtml(url: string, elementToTrack: string, limit: number, loadButton?: string): Promise<string> {
-
   let browser: Browser;
 
   try {
@@ -71,7 +73,7 @@ async function getFullHtml(url: string, elementToTrack: string, limit: number, l
     await browser.close();
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return Promise.resolve('');
   } finally {
     if (browser) {

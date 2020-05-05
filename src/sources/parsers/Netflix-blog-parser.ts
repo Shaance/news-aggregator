@@ -33,7 +33,7 @@ function parse(html: string): Article[] {
       url: links[idx],
       date: new Date(dates[idx]),
       author: clean(authors[idx]).replace(/(By |by )/, ''),
-      source: 'Netflix',
+      source: 'netflix',
     };
 
     // Netflix first article is constructed in different way

@@ -21,7 +21,7 @@ describe('Facebook-blog-parser parse function', () => {
         title: 'Accelerating innovations in infrastructure and advancing global connectivity with our partners',
         date: new Date('2020-03-02T00:00:00'),
         imageUrl: 'https://engineering.fb.com/wp-content/uploads/2020/03/Lightspeed_Hero.jpeg?w=580&h=326&crop=1',
-        source: 'Facebook',
+        source: 'facebook',
       };
       expect(result[0]).toEqual(expected);
     });

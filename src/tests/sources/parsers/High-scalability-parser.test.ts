@@ -21,7 +21,7 @@ describe('High-scalability-parser parse function', () => {
         title: 'Stuff The Internet Says On Scalability For March 13th, 2020',
         date: new Date('2020-03-13T09:10:00'),
         imageUrl: 'https://raw.githubusercontent.com/earthspecies/roadmaps/master/images/ai/10k_eng_med_opt.gif',
-        source: 'High scalability',
+        source: 'highscalability',
       };
       expect(result[0]).toEqual(expected);
     });

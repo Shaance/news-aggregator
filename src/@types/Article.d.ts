@@ -41,4 +41,5 @@ export interface Article {
   imageUrl?: string;
   date: Date;
   source: string;
+  sourceIconUrl?: string
 }

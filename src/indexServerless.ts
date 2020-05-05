@@ -3,13 +3,13 @@ import 'source-map-support/register';
 import {
   getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString,
 } from './helpers/SourceHelper';
-import source from './sources/SourceHandler';
+import source from './sources/SourceArchiveHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 import factory from './config/ConfigLog4j';
 
 const logger = factory.getLogger('indexServerless');
-const sourceHandler = source(true);
+const sourceArchiveHandler = source(true);
 const headers = {
   'Content-Type': 'application/json; charset=UTF-8',
 };
@@ -38,7 +38,7 @@ export const sourceUber: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.uber(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.uber(options)),
   };
 };
 
@@ -48,7 +48,7 @@ export const sourceFacebook: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.facebook(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.facebook(options)),
   };
 };
 
@@ -58,7 +58,7 @@ export const sourceNetflix: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.netflix(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.netflix(options)),
   };
 };
 
@@ -68,7 +68,7 @@ export const sourceHackernews: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.hackerNews(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.hackerNews(options)),
   };
 };
 
@@ -78,7 +78,7 @@ export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.androidPolice(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.androidPolice(options)),
   };
 };
 
@@ -88,7 +88,7 @@ export const sourceDevto: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.devTo(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.devTo(options)),
   };
 };
 
@@ -98,7 +98,7 @@ export const sourceHighScalability: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.highScalability(options)),
+    body: jsonStringifyPretty(await sourceArchiveHandler.highScalability(options)),
   };
 };
 

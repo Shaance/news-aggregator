@@ -22,7 +22,7 @@ describe('Uber-blog-parser parse function', () => {
         date: new Date('2020-03-17T08:30:25+00:00'),
         author: 'Murali Krishna Ramanathan, Lazaro Clapp, Rajkishore Barik, Manu Sridharan',
         imageUrl: 'https://eng.uber.com/wp-content/uploads/2020/03/Header-Piranha-696x298.jpg',
-        source: 'Uber',
+        source: 'uber',
       };
       expect(result[0]).toEqual(expected);
     });

@@ -24,7 +24,7 @@ function parse(html: string): Article[] {
       date: new Date(dates[idx].attribs.datetime),
       author: clean(authors[idx]),
       imageUrl: images[idx].attribs.src,
-      source: 'Android Police',
+      source: 'androidpolice',
     });
   });
 

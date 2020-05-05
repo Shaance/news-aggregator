@@ -22,7 +22,7 @@ describe('Netflix-blog-parser parse function', () => {
         title: 'SVT-AV1: an open-source AV1 encoder and decoder',
         author: 'Andrey Norkin, Joel Sole, Mariana Afonso, Kyle Swanson, Agata Opalach, Anush Moorthy, Anne Aaron',
         date: new Date('2020-03-13T17:21:00.833Z'),
-        source: 'Netflix',
+        source: 'netflix',
       };
       expect(result[1]).toEqual(expected);
     });

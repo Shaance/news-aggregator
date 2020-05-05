@@ -1,3 +1,4 @@
+/* eslint-disable import/named */
 /* eslint-disable max-len */
 import express from 'express';
 import compression from 'compression';
@@ -6,19 +7,20 @@ import cron from 'node-cron';
 import cors from 'cors';
 import swaggerDocs from './config/SwaggerConfig';
 import {
-  getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys, sourceOptionsToString,
+  getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys, sourceOptionsToString, getAllArchiveSources,
 } from './helpers/SourceHelper';
 import config from './config/EnvConfig';
-import source from './sources/SourceHandler';
+import source from './sources/SourceArchiveHandler';
 import factory from './config/ConfigLog4j';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
+import { getSources, getArticles } from './sources/SourceHandler';
 
 const app = express();
 const sourceApi = '/api/v1/source';
 const { port } = config;
 const { refreshFrequency } = config; // in minutes
-const sourceHandler = source();
+const sourceArchiveHandler = source();
 const logger = factory.getLogger('index');
 
 app.use(cors());
@@ -56,7 +58,7 @@ app.use('/api-docs', serve, setup(swaggerDocs(port)));
 app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called Dev.to endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.devTo(options)
+  sourceArchiveHandler.devTo(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -91,7 +93,7 @@ app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
 app.get(`${sourceApi}/netflix`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called Netflix endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.netflix(options)
+  sourceArchiveHandler.netflix(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -127,7 +129,7 @@ app.get(`${sourceApi}/netflix`, async (req, res, next) => {
 app.get(`${sourceApi}/uber`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called Uber endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.uber(options)
+  sourceArchiveHandler.uber(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -163,7 +165,7 @@ app.get(`${sourceApi}/uber`, async (req, res, next) => {
 app.get(`${sourceApi}/facebook`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called Facebook endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.facebook(options)
+  sourceArchiveHandler.facebook(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -198,7 +200,7 @@ app.get(`${sourceApi}/facebook`, async (req, res, next) => {
 app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called AndroidPolice endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.androidPolice(options)
+  sourceArchiveHandler.androidPolice(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -233,7 +235,7 @@ app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
 app.get(`${sourceApi}/highscalability`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called Highscalability endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.highScalability(options)
+  sourceArchiveHandler.highScalability(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -275,7 +277,7 @@ app.get(`${sourceApi}/highscalability`, async (req, res, next) => {
 app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
   const options = getOptions(req);
   logger.info(`Called HackerNews endpoint with options: ${sourceOptionsToString(options)}`);
-  sourceHandler.hackerNews(options)
+  sourceArchiveHandler.hackerNews(options)
     .then((articles) => res.json(articles))
     .catch((error) => next(error));
 });
@@ -337,6 +339,30 @@ app.get('/api/v1/info/sources', (_, res) => {
   res.json(getAllSourceKeys());
 });
 
+app.get('/api/v2/source/archive', (_, res) => {
+  logger.info('Called source archive endpoint');
+  res.json(getAllArchiveSources());
+});
+
+app.get('/api/v2/source/rss', (_, res) => {
+  res.json(getSources());
+});
+
+app.get('/api/v2/source/rss/:key', (req, res, next) => {
+  logger.info(`Called source endpoint with params: ${req.params.key?.toString()}`);
+  getArticles(req.params.key, getOptions(req))
+    .then((articles) => {
+      if (articles?.length > 0) {
+        res.json(articles);
+      } else {
+        const notFoundMessage = `Unknown source or no article for ${req.params.key?.toString()} source.`;
+        logger.info(notFoundMessage);
+        res.status(204).send(notFoundMessage);
+      }
+    })
+    .catch((err) => next(err));
+});
+
 app.listen(port, () => {
   logger.info(`App listening at http://localhost:${port}`);
   updateAllSources();
@@ -375,24 +401,24 @@ function getOptions(req): SourceOptions {
 
 async function updateAllSources() {
   const baseOptionsBuilder = new SourceOptionsBuilder().withForceFreshFlag();
-  sourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.devTo(baseOptionsBuilder.build()).catch((err) => logger.error(err));
   getDevToCategoryKeys().forEach((category) => {
-    sourceHandler.devTo(
+    sourceArchiveHandler.devTo(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .withCategory(category)
         .build(),
     ).catch((err) => logger.error(err));
   });
-  sourceHandler.netflix(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  sourceHandler.uber(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  sourceHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.netflix(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.uber(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => logger.error(err));
   getHackerNewsCategoryKeys().forEach((category) => {
-    sourceHandler.hackerNews(
+    sourceArchiveHandler.hackerNews(
       new SourceOptionsBuilder(baseOptionsBuilder.build())
         .withCategory(category)
         .build(),
     ).catch((err) => logger.error(err));
   });
-  sourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  sourceHandler.highScalability(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.facebook(baseOptionsBuilder.build()).catch((err) => logger.error(err));
+  sourceArchiveHandler.highScalability(baseOptionsBuilder.build()).catch((err) => logger.error(err));
 }

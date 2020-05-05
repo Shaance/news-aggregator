@@ -1,127 +1,91 @@
-/* eslint-disable max-len */
-import got from 'got';
-import { getDevToCategory, getHackerNewsCategory, getUrlsFromPaginatedSource } from '../helpers/SourceHelper';
+/* eslint-disable no-shadow */
+/* eslint-disable object-curly-newline */
+import fs from 'fs';
+import path from 'path';
+import { load } from 'cheerio';
+import Parser, { Output } from 'rss-parser';
+import { Source } from '../@types/Source';
 import { Article } from '../@types/Article';
-import parseDevto from './parsers/Dev-to-parser';
-import parseNetflix from './parsers/Netflix-blog-parser';
-import parseUber from './parsers/Uber-blog-parser';
-import parseFacebook from './parsers/Facebook-blog-parser';
-import parseAndroidPolice from './parsers/Android-police-parser';
-import parseHighScalability from './parsers/High-scalability-parser';
-import { getArticleFromStory, getStoryUrls } from './apis/HackerNewsApi';
-import getFullHtml from './DynamicHtmlLoader';
+import sourceArchive from './SourceArchiveHandler';
+import { getAllSourceKeys } from '../helpers/SourceHelper';
 import { SourceOptions } from '../@types/SourceOptions';
 import factory from '../config/ConfigLog4j';
 
 const logger = factory.getLogger('SourceHandler');
-const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
-let serverlessMode: boolean;
+const rssParser = new Parser();
+const sourceArchiveHandler = sourceArchive();
 
-export async function handleDevToRequest(options: SourceOptions) {
-  let sourceKey = 'dev-to/';
-  const baseUrl = 'https://dev.to';
-  const category = getDevToCategory(options.category);
-  sourceKey += category;
-  const url = category ? `${baseUrl}/${category}` : baseUrl;
-  return handleDynamicSourceRequest(sourceKey, url, parseDevto, options, 'time');
+export function getSources(): Source[] {
+  const data = fs.readFileSync(path.join('res', 'rss', 'feeds.opml'), 'UTF-8');
+  const $ = load(data);
+  return $('outline')
+    .filter((_idx, elem) => elem.attribs?.type === 'rss')
+    .toArray()
+    .map((elem) => {
+      const { text, title, xmlurl, htmlurl } = elem.attribs;
+      return {
+        key: encodeURIComponent(text),
+        title,
+        feedUrl: xmlurl,
+        url: htmlurl,
+      };
+    });
 }
 
-export async function handleNetflixRequest(options: SourceOptions) {
-  return handleDynamicSourceRequest('netflix', 'https://netflixtechblog.com/', parseNetflix, options, 'time');
-}
-
-export async function handleUberRequest(options: SourceOptions) {
-  const urls = getUrlsFromPaginatedSource('https://eng.uber.com/', options.numberOfArticles, 20, '/page/');
-  return handleStaticSourceRequest('uber', urls, parseUber, options);
-}
-
-export async function handleFacebookRequest(options: SourceOptions) {
-  return handleDynamicSourceRequest('facebook', 'https://engineering.fb.com/', parseFacebook, options, 'time', '.btn.loadmore-btn');
-}
-
-export async function handleAndroidPoliceRequest(options: SourceOptions) {
-  const urls = getUrlsFromPaginatedSource('https://www.androidpolice.com/', options.numberOfArticles, 10, '/page/');
-  return handleStaticSourceRequest('androidpolice', urls, parseAndroidPolice, options);
-}
-
-export async function handleHighScalibility(options: SourceOptions) {
-  const urls = getUrlsFromPaginatedSource('http://highscalability.com/', options.numberOfArticles, 5, 'blog/?currentPage=');
-  return handleStaticSourceRequest('highscalability', urls, parseHighScalability, options);
-}
-
-export async function handleHackerNewsRequest(options: SourceOptions) {
-  const { category, forceRefresh, numberOfArticles } = options;
-  let resolvedCategory = getHackerNewsCategory(category);
-  if (!resolvedCategory) {
-    // default to best stories
-    resolvedCategory = getHackerNewsCategory('best');
-  }
-  const sourceKey = `hackernews/${resolvedCategory}`;
-  let storyUrls: string[] = [];
-  if (serverlessMode || forceRefresh || !allArticles.has(sourceKey) || allArticles.get(sourceKey)?.length < numberOfArticles) {
-    storyUrls = (await getStoryUrls(resolvedCategory)).slice(0, numberOfArticles);
-  }
-
-  return handleStaticSourceRequest(sourceKey, storyUrls, getArticleFromStory, options);
-}
-
-function logForceRefresh(source: string) {
-  logger.info(`Force refresh articles for ${source}.`);
-}
-
-async function getStaticResponsesFromUrls(urls: string[], transformFunction: (source: any) => Article[]): Promise<Article[]> {
-  return Promise.all(
-    urls.map((url) => got(url).then((response) => response.body)),
-  ).then((responses) => responses.flatMap((response) => transformFunction(response)));
-}
-
-// transformFunction is either a parsing function or a function which call an API
-async function handleStaticSourceRequest(sourceKey: string, urls: string[], transformFunction: (source: any) => Article[], options: SourceOptions): Promise<Article[]> {
-  const { forceRefresh, numberOfArticles } = options;
-  if (!serverlessMode) {
-    if (forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles)) {
-      logForceRefresh(sourceKey);
-      const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
-      allArticles.set(sourceKey, parsedArticles);
-      return parsedArticles.slice(0, numberOfArticles);
+export async function getArticles(key: string, options: SourceOptions): Promise<Article[]> {
+  let articles: Article[] = [];
+  if (key) {
+    const archiveSources = getAllSourceKeys();
+    if (archiveSources.includes(key)) {
+      logger.info('Archive endpoint detection will use sourceArchiveHandler');
+      return keyToSourceArchiveFunction(key, options);
     }
-    return allArticles.get(sourceKey)?.slice(0, numberOfArticles);
-  }
+    const sources = getSources();
+    const resolvedSource = sources
+      .filter((source) => source.key === encodeURIComponent(key));
 
-  const parsedArticles: Article[] = await getStaticResponsesFromUrls(urls, transformFunction);
-  return parsedArticles.slice(0, numberOfArticles);
-}
-
-async function getDynamicResponsesFromUrls(url: string, transformFunction: (source: any) => Article[], elementToTrack: string, limit: number, loadButton?: string): Promise<Article[]> {
-  return getFullHtml(url, elementToTrack, limit, loadButton).then((response) => transformFunction(response));
-}
-
-async function handleDynamicSourceRequest(sourceKey: string, url: string, transformFunction: (source: any) => Article[],
-  options: SourceOptions, elementToTrack: string, loadButton?: string): Promise<Article[]> {
-  const { forceRefresh, numberOfArticles } = options;
-  if (!serverlessMode) {
-    if (forceRefresh || !allArticles.get(sourceKey) || (allArticles.has(sourceKey) && allArticles.get(sourceKey)!.length < numberOfArticles)) {
-      logForceRefresh(sourceKey);
-      const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, numberOfArticles, loadButton);
-      allArticles.set(sourceKey, parsedArticles);
-      return parsedArticles.slice(0, numberOfArticles);
+    if (resolvedSource?.length > 0) {
+      try {
+        const parsedItem: Output = await rssParser.parseURL(resolvedSource[0].feedUrl);
+        const sourceIconUrl = parsedItem.image?.link;
+        articles = parsedItem.items.map((item) => ({
+          title: item.title,
+          url: item.link,
+          author: item.creator,
+          date: new Date(item.isoDate),
+          source: resolvedSource[0].key,
+          sourceIconUrl,
+        }));
+      } catch (err) {
+        logger.error(`Error while fetching ${resolvedSource}: ${err}`, err);
+      }
     }
-    return allArticles.get(sourceKey)?.slice(0, numberOfArticles);
   }
-
-  const parsedArticles: Article[] = await getDynamicResponsesFromUrls(url, transformFunction, elementToTrack, numberOfArticles, loadButton);
-  return parsedArticles.slice(0, numberOfArticles);
+  return articles;
 }
 
-export default (serverless: boolean = false) => {
-  serverlessMode = serverless;
-  return {
-    devTo: (options: SourceOptions) => handleDevToRequest(options),
-    androidPolice: (options: SourceOptions) => handleAndroidPoliceRequest(options),
-    highScalability: (options: SourceOptions) => handleHighScalibility(options),
-    hackerNews: (options: SourceOptions) => handleHackerNewsRequest(options),
-    uber: (options: SourceOptions) => handleUberRequest(options),
-    facebook: (options: SourceOptions) => handleFacebookRequest(options),
-    netflix: (options: SourceOptions) => handleNetflixRequest(options),
-  };
-};
+function keyToSourceArchiveFunction(sourceKey: String, options: SourceOptions) {
+  switch (sourceKey) {
+    case 'uber': {
+      return sourceArchiveHandler.uber(options);
+    }
+    case 'netflix': {
+      return sourceArchiveHandler.netflix(options);
+    }
+    case 'dev-to': {
+      return sourceArchiveHandler.devTo(options);
+    }
+    case 'facebook': {
+      return sourceArchiveHandler.facebook(options);
+    }
+    case 'highscalability': {
+      return sourceArchiveHandler.highScalability(options);
+    }
+    case 'hackernews': {
+      return sourceArchiveHandler.hackerNews(options);
+    }
+    default: {
+      return sourceArchiveHandler.androidPolice(options);
+    }
+  }
+}

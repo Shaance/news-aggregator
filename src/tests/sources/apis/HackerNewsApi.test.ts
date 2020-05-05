@@ -14,7 +14,7 @@ describe('HackerNews api parse function', () => {
         title: "You're a Slave to Money, Then You Die",
         date: new Date('2020-04-12T10:58:14+00:00'),
         author: 'jxub',
-        source: 'HackerNews',
+        source: 'hackerNews',
       };
       expect(result[0]).toEqual(expected);
     });

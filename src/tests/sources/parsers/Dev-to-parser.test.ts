@@ -24,7 +24,7 @@ describe('Dev-to-parser parse function ', () => {
         title: 'How to Host A Website On Google Drive for Free',
         author: '🦊 Atomic Fox',
         date: new Date('2020-04-04T17:14:56Z'),
-        source: 'Dev.to',
+        source: 'dev.to',
       };
       expect(result[0]).toEqual(expected);
     });
