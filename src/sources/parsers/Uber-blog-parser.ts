@@ -37,7 +37,7 @@ function parse(html: string): Article[] {
       date: new Date(dates[idx]),
       author: authors[idx],
       imageUrl: images[idx],
-      source: 'Uber',
+      source: 'uber',
     });
   });
 

@@ -1,4 +1,6 @@
+/* eslint-disable max-len */
 import { SourceOptions } from '../@types/SourceOptions';
+import { Source } from '../@types/Source';
 
 const devToCategories = new Map([
   ['week', 'top/week'],
@@ -51,7 +53,33 @@ export function getAllSourceKeys() {
     'androidpolice',
     'hackernews',
     'facebook',
-    'highscalability'
+    'highscalability',
+  ];
+}
+
+export function getAllArchiveSources() : Source[] {
+  return [
+    {
+      key: 'dev-to', title: 'Dev.to', feedUrl: '', url: 'https://dev.to',
+    },
+    {
+      key: 'uber', title: 'Uber engineering blog', feedUrl: 'https://eng.uber.com/feed/', url: 'https://eng.uber.com/',
+    },
+    {
+      key: 'netflix', title: 'Netflix technology blog', feedUrl: 'https://medium.com/feed/netflix-techblog', url: 'https://medium.com/netflix-techblog',
+    },
+    {
+      key: 'androidpolice', title: 'AndroidPolice', feedUrl: 'https://www.androidpolice.com/feed', url: 'https://www.androidpolice.com/',
+    },
+    {
+      key: 'hackernews', title: 'HackerNews', feedUrl: '', url: 'https://news.ycombinator.com/',
+    },
+    {
+      key: 'facebook', title: 'Facebook engineering blog', feedUrl: 'https://engineering.fb.com/feed/', url: 'https://engineering.fb.com/',
+    },
+    {
+      key: 'highscalability', title: 'High scalability website', feedUrl: 'http://feeds.feedburner.com/HighScalability', url: 'http://highscalability.com/',
+    },
   ];
 }
 

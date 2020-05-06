@@ -29,7 +29,7 @@ function parse(html: string): Article[] {
       title: clean(datum.firstChild.data),
       date: new Date(dates[idx]),
       imageUrl: images[idx],
-      source: 'Facebook',
+      source: 'facebook',
     });
   });
 

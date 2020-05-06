@@ -3,13 +3,13 @@ import nock from 'nock';
 import sinon from 'sinon';
 import path from 'path';
 import fs from 'fs';
-import source from '../../sources/SourceHandler';
+import source from '../../sources/ParsedSourceHandler';
 import { getHackerNewsCategory } from '../../helpers/SourceHelper';
 import SourceOptionsBuilder from '../../helpers/SourceOptionsBuilder';
 
-const sourceHandler = source();
+const ParsedSourceHandler = source();
 
-describe('SourceHandler androidPolice function', () => {
+describe('ParsedSourceHandler androidPolice function', () => {
   it('should call the right URL and get the right number of articles', (done) => {
     // two articles from html
     const pathToSample = path.join('res', 'tests', 'android-police-sample.html');
@@ -22,7 +22,7 @@ describe('SourceHandler androidPolice function', () => {
     const onFulfilled = sinon.spy();
     const numberOfArticles = 1;
     const options = new SourceOptionsBuilder().withArticleNumber(numberOfArticles).build();
-    const promise = sourceHandler.androidPolice(options).then(onFulfilled);
+    const promise = ParsedSourceHandler.androidPolice(options).then(onFulfilled);
 
     promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
@@ -31,7 +31,7 @@ describe('SourceHandler androidPolice function', () => {
   });
 });
 
-describe('SourceHandler hackernews function', () => {
+describe('ParsedSourceHandler hackernews function', () => {
   it('should call the right URL and get the right number of articles', (done) => {
     const pathToSample = path.join('res', 'tests', 'hacker-news-item-sample.json');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
@@ -53,7 +53,7 @@ describe('SourceHandler hackernews function', () => {
       .withCategory(category)
       .build();
 
-    const promise = sourceHandler.hackerNews(options).then(onFulfilled);
+    const promise = ParsedSourceHandler.hackerNews(options).then(onFulfilled);
 
     promise.then(() => {
       expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
@@ -62,7 +62,7 @@ describe('SourceHandler hackernews function', () => {
   });
 });
 
-describe('SourceHandler uber function', () => {
+describe('ParsedSourceHandler uber function', () => {
   it('should call the right URL when uber method is called', (done) => {
     const pathToSample = path.join('res', 'tests', 'uber-blog-sample.html');
     const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
@@ -73,7 +73,7 @@ describe('SourceHandler uber function', () => {
 
     const onFulfilled = sinon.spy();
     const articleNumber = 2;
-    const promise = sourceHandler.uber(
+    const promise = ParsedSourceHandler.uber(
       new SourceOptionsBuilder()
         .withArticleNumber(articleNumber)
         .build(),
@@ -87,7 +87,7 @@ describe('SourceHandler uber function', () => {
 });
 
 // TODO find a way to mock pupeeter
-describe('SourceHandler class', () => {
+describe('ParsedSourceHandler class', () => {
   // it('should call the right URL and resolve category when dev-to method is called', (done) => {
   //   const pathToSample = path.join('res', 'tests', 'dev-to-sample.html');
   //   const fakeResponse = fs.readFileSync(pathToSample, 'utf8');
@@ -98,7 +98,7 @@ describe('SourceHandler class', () => {
   //       Promise.resolve(fakeResponse);
   //     },
   //   };
-  //   const mockedSourceHandler = proxyquire(`../../${path.join('sources', 'SourceHandler.ts')}`, {
+  //   const mockedParsedSourceHandler = proxyquire(`../../${path.join('sources', 'ParsedSourceHandler.ts')}`, {
   //     './DynamicHtmlLoader': () => mockedDynamicHtmlLoaderInstance,
   //   });
 
@@ -115,7 +115,7 @@ describe('SourceHandler class', () => {
   //   spyOn(mockedDynamicHtmlLoaderInstance, 'getFullHtml');
 
   //   const onFulfilled = sinon.spy();
-  //   const promise = mockedSourceHandler.devTo(options).then(onFulfilled);
+  //   const promise = mockedParsedSourceHandler.devTo(options).then(onFulfilled);
 
   //   promise.then(() => {
   //     // expect(onFulfilled.getCall(0).args[0].length).toEqual(numberOfArticles);
@@ -137,7 +137,7 @@ describe('SourceHandler class', () => {
   //     .reply(200, fakeResponse);
 
   //   const onFulfilled = sinon.spy();
-  //   const promise = sourceHandler.netflix(new SourceOptionsBuilder().build()).then(onFulfilled);
+  //   const promise = ParsedSourceHandler.netflix(new SourceOptionsBuilder().build()).then(onFulfilled);
 
   //   promise.then(() => {
   //     expect(onFulfilled.getCall(0).args[0].length).toEqual(3);

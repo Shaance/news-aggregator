@@ -13,7 +13,7 @@ import getFullHtml from './DynamicHtmlLoader';
 import { SourceOptions } from '../@types/SourceOptions';
 import factory from '../config/ConfigLog4j';
 
-const logger = factory.getLogger('SourceHandler');
+const logger = factory.getLogger('ParsedSourceHandler');
 const allArticles = new Map<String, Article[]>(); // TODO database + cache instead of having everything in memory
 let serverlessMode: boolean;
 

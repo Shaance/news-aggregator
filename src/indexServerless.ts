@@ -1,15 +1,16 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, APIGatewayEvent } from 'aws-lambda';
 import 'source-map-support/register';
 import {
   getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString,
 } from './helpers/SourceHelper';
-import source from './sources/SourceHandler';
+import source from './sources/ParsedSourceHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 import factory from './config/ConfigLog4j';
+import { getSources, getArticles } from './sources/RssSourceHandler';
 
 const logger = factory.getLogger('indexServerless');
-const sourceHandler = source(true);
+const parsedSourceHandler = source(true);
 const headers = {
   'Content-Type': 'application/json; charset=UTF-8',
 };
@@ -38,7 +39,7 @@ export const sourceUber: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.uber(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.uber(options)),
   };
 };
 
@@ -48,7 +49,7 @@ export const sourceFacebook: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.facebook(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.facebook(options)),
   };
 };
 
@@ -58,7 +59,7 @@ export const sourceNetflix: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.netflix(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.netflix(options)),
   };
 };
 
@@ -68,7 +69,7 @@ export const sourceHackernews: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.hackerNews(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.hackerNews(options)),
   };
 };
 
@@ -78,7 +79,7 @@ export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.androidPolice(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.androidPolice(options)),
   };
 };
 
@@ -88,7 +89,7 @@ export const sourceDevto: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.devTo(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.devTo(options)),
   };
 };
 
@@ -98,23 +99,42 @@ export const sourceHighScalability: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     headers,
-    body: jsonStringifyPretty(await sourceHandler.highScalability(options)),
+    body: jsonStringifyPretty(await parsedSourceHandler.highScalability(options)),
   };
 };
 
-function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
+export const fetchRssSources: APIGatewayProxyHandler = async () => {
+  logger.info('Called fetch RSS sources endpoint');
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(getSources()),
+  };
+};
+
+export const fetchRssArticles: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called fetch Rss Articles endpoint with options: ${sourceOptionsToString(options)}, key: ${event.pathParameters.key}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await getArticles(event.pathParameters.key, options)),
+  };
+};
+
+function setNumberOfArticles(event: APIGatewayEvent, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.articleNumber) {
     builder.withArticleNumber(parseInt(event.queryStringParameters!.articleNumber, 10));
   }
 }
 
-function setCategory(event, builder: SourceOptionsBuilder) {
+function setCategory(event: APIGatewayEvent, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.category) {
     builder.withCategory(event.queryStringParameters!.category);
   }
 }
 
-function getOptions(event): SourceOptions {
+function getOptions(event: APIGatewayEvent): SourceOptions {
   const builder = new SourceOptionsBuilder();
   setCategory(event, builder);
   setNumberOfArticles(event, builder);

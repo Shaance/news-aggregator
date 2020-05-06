@@ -21,7 +21,7 @@ export function getArticleFromStory(json: any): Article[] {
       url: item.url,
       author: item.by,
       date: new Date(item.time * 1000),
-      source: 'HackerNews',
+      source: 'hackerNews',
     }];
   }
   return [];

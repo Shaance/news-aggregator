@@ -83,3 +83,19 @@ functions:
       - http:
           path: /api/v1/source/highscalability
           method: get
+  fetchRssSources:
+    handler: src/indexServerless.fetchRssSources
+    events:
+      - http:
+          path: /api/v2/source/rss
+          method: get
+  fetchRssArticles:
+    handler: src/indexServerless.fetchRssArticles
+    events:
+      - http:
+          path: /api/v2/source/rss/{key}
+          method: get
+          request:
+            parameters:
+              paths:
+                key: true
