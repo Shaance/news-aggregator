@@ -40,14 +40,15 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
       logger.info('Archive endpoint detection will use sourceArchiveHandler');
       return keyToSourceArchiveFunction(key, options);
     }
-    const sources = getSources();
-    const resolvedSource = sources
+
+    const resolvedSource = getSources()
       .filter((source) => source.key === encodeURIComponent(key));
 
     if (resolvedSource?.length > 0) {
       try {
         const parsedItem: Output = await rssParser.parseURL(resolvedSource[0].feedUrl);
         const sourceIconUrl = parsedItem.image?.link;
+        // TODO add properties from parser.Output to Article type
         articles = parsedItem.items.map((item) => ({
           title: item.title,
           url: item.link,
@@ -55,6 +56,8 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
           date: new Date(item.isoDate),
           source: resolvedSource[0].key,
           sourceIconUrl,
+          contentSnippet: item.contentSnippet,
+          categories: item.categories,
         }));
       } catch (err) {
         logger.error(`Error while fetching ${resolvedSource}: ${err}`, err);

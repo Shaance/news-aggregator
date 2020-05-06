@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, APIGatewayEvent } from 'aws-lambda';
 import 'source-map-support/register';
 import {
   getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString,
@@ -7,6 +7,7 @@ import source from './sources/SourceArchiveHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
 import { SourceOptions } from './@types/SourceOptions';
 import factory from './config/ConfigLog4j';
+import { getSources, getArticles } from './sources/SourceHandler';
 
 const logger = factory.getLogger('indexServerless');
 const sourceArchiveHandler = source(true);
@@ -102,19 +103,38 @@ export const sourceHighScalability: APIGatewayProxyHandler = async (event) => {
   };
 };
 
-function setNumberOfArticles(event, builder: SourceOptionsBuilder) {
+export const fetchRssSources: APIGatewayProxyHandler = async () => {
+  logger.info('Called fetch RSS sources endpoint');
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(getSources()),
+  };
+};
+
+export const fetchRssArticles: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called fetch Rss Articles endpoint with options: ${sourceOptionsToString(options)}, key: ${event.pathParameters.key}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await getArticles(event.pathParameters.key, options)),
+  };
+};
+
+function setNumberOfArticles(event: APIGatewayEvent, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.articleNumber) {
     builder.withArticleNumber(parseInt(event.queryStringParameters!.articleNumber, 10));
   }
 }
 
-function setCategory(event, builder: SourceOptionsBuilder) {
+function setCategory(event: APIGatewayEvent, builder: SourceOptionsBuilder) {
   if (event.queryStringParameters?.category) {
     builder.withCategory(event.queryStringParameters!.category);
   }
 }
 
-function getOptions(event): SourceOptions {
+function getOptions(event: APIGatewayEvent): SourceOptions {
   const builder = new SourceOptionsBuilder();
   setCategory(event, builder);
   setNumberOfArticles(event, builder);
