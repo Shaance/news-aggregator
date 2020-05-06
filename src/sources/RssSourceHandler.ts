@@ -6,14 +6,14 @@ import { load } from 'cheerio';
 import Parser, { Output } from 'rss-parser';
 import { Source } from '../@types/Source';
 import { Article } from '../@types/Article';
-import sourceArchive from './SourceArchiveHandler';
+import sourceArchive from './ParsedSourceHandler';
 import { getAllSourceKeys } from '../helpers/SourceHelper';
 import { SourceOptions } from '../@types/SourceOptions';
 import factory from '../config/ConfigLog4j';
 
-const logger = factory.getLogger('SourceHandler');
+const logger = factory.getLogger('RssSourceHandler');
 const rssParser = new Parser();
-const sourceArchiveHandler = sourceArchive();
+const ParsedSourceHandler = sourceArchive();
 
 export function getSources(): Source[] {
   const data = fs.readFileSync(path.join('res', 'rss', 'feeds.opml'), 'UTF-8');
@@ -37,7 +37,7 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
   if (key) {
     const archiveSources = getAllSourceKeys();
     if (archiveSources.includes(key)) {
-      logger.info('Archive endpoint detection will use sourceArchiveHandler');
+      logger.info('Archive endpoint detection will use ParsedSourceHandler');
       return keyToSourceArchiveFunction(key, options);
     }
 
@@ -70,25 +70,25 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
 function keyToSourceArchiveFunction(sourceKey: String, options: SourceOptions) {
   switch (sourceKey) {
     case 'uber': {
-      return sourceArchiveHandler.uber(options);
+      return ParsedSourceHandler.uber(options);
     }
     case 'netflix': {
-      return sourceArchiveHandler.netflix(options);
+      return ParsedSourceHandler.netflix(options);
     }
     case 'dev-to': {
-      return sourceArchiveHandler.devTo(options);
+      return ParsedSourceHandler.devTo(options);
     }
     case 'facebook': {
-      return sourceArchiveHandler.facebook(options);
+      return ParsedSourceHandler.facebook(options);
     }
     case 'highscalability': {
-      return sourceArchiveHandler.highScalability(options);
+      return ParsedSourceHandler.highScalability(options);
     }
     case 'hackernews': {
-      return sourceArchiveHandler.hackerNews(options);
+      return ParsedSourceHandler.hackerNews(options);
     }
     default: {
-      return sourceArchiveHandler.androidPolice(options);
+      return ParsedSourceHandler.androidPolice(options);
     }
   }
 }
