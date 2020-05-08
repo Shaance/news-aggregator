@@ -15,8 +15,8 @@ jobs:
           node-version: 12
       - name: Installing depedencies
         run: npm ci --production
-      - name: eslint
-        uses: icrawl/action-eslint@v1
+      - name: Linting
+        run: npm run lint
       - name: Run unit tests
         run: npm test
       - name: Build the app
