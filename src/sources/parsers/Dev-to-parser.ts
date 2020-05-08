@@ -43,7 +43,7 @@ function parse(html: string): Article[] {
       title: title !== '' ? title : extractTitleFromUrl(elem.attribs.href),
       author,
       date,
-      source: 'dev.to',
+      source: 'dev-to',
     });
   });
   return results;
