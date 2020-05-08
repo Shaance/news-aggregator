@@ -13,7 +13,11 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm ci --production
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
+      - name: Installing depedencies
+        run: npm ci --production
+      - name: eslint
+        uses: icrawl/action-eslint@v1
+      - name: Run unit tests
+        run: npm test
+      - name: Build the app
+        run: npm run build

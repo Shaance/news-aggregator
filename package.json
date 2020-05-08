@@ -10,7 +10,7 @@
     "build": "tsc -p .",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
     "coverage": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test",
-    "lint": "./node_modules/.bin/eslint -c .eslintrc.js --ext .ts src/**"
+    "lint": "eslint -c .eslintrc.js --ext .ts src/**"
   },
   "keywords": [
     "scrapping",
