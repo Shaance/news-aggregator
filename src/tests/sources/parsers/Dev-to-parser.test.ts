@@ -23,7 +23,7 @@ describe('Dev-to-parser parse function ', () => {
         url: 'https://dev.to/ben/explain-deno-like-i-m-five-i4m',
         title: "Explain Deno Like I'm Five",
         author: 'Ben Halpern',
-        date: new Date('2020-05-11T15:01:16'),
+        date: new Date('2020-05-11T13:01:16Z'),
         source: 'dev-to',
       };
       expect(result[0]).toEqual(expected);
