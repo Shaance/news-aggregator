@@ -9,10 +9,10 @@ const encoding = 'UTF-8';
 const rewired = rewire('../../../sources/parsers/Dev-to-parser');
 
 describe('Dev-to-parser parse function ', () => {
-  it('should return 4 articles', async () => {
+  it('should return 2 articles', async () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
-      expect(result.length).toBe(4);
+      expect(result.length).toBe(2);
     });
   });
 
@@ -20,10 +20,10 @@ describe('Dev-to-parser parse function ', () => {
     fs.readFile(pathToSample, encoding, async (_, data) => {
       const result = parse(data);
       const expected = {
-        url: 'https://dev.to/monicafidalgo/how-to-host-a-website-on-google-drive-for-free-1ejk',
-        title: 'How to Host A Website On Google Drive for Free',
-        author: '🦊 Atomic Fox',
-        date: new Date('2020-04-04T17:14:56Z'),
+        url: 'https://dev.to/ben/explain-deno-like-i-m-five-i4m',
+        title: "Explain Deno Like I'm Five",
+        author: 'Ben Halpern',
+        date: new Date('2020-05-11T13:01:16Z'),
         source: 'dev-to',
       };
       expect(result[0]).toEqual(expected);
