@@ -23,20 +23,30 @@ function parse(html: string): Article[] {
   const results: Article[] = [];
   const $ = load(html);
   const metadata = $('time').toArray();
-  const titles = $('h3')
-    .toArray()
-    .filter((h3) => h3.parent.attribs.class === 'content-wrapper' || h3.parent.attribs.class === 'content')
-    .map((h3) => h3.lastChild.data);
 
-  let articleLinks = $('a.index-article-link').toArray();
+  let articleLinks = $('h2.crayons-story__title')
+    .children('a')
+    .toArray();
+
   // TODO investigate why the first element is duplicated?
   if (articleLinks.length > metadata.length) {
     articleLinks = articleLinks.slice(1);
   }
 
+  const authors = $('.crayons-story__meta')
+    .children()
+    .filter((_idx, elem) => elem.attribs?.class !== 'crayons-story__author-pic')
+    .children('p')
+    .children('a')
+    .toArray()
+    .map((elem) => elem.firstChild.data);
+
+  const titles = articleLinks
+    .map((elem) => elem.lastChild.data);
+
   articleLinks.forEach((elem, idx) => {
     const title = clean(titles[idx]);
-    const author = clean(metadata[idx].prev.data);
+    const author = clean(authors[idx]);
     const date = new Date(metadata[idx].attribs.datetime as string);
     results.push({
       url: baseUrl + elem.attribs.href,
