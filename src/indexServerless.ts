@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayEvent } from 'aws-lambda';
 import 'source-map-support/register';
 import {
-  getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString,
+  getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString, getAllParsedSources,
 } from './helpers/SourceHelper';
 import source from './sources/ParsedSourceHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
@@ -33,82 +33,21 @@ export const infoHackerNewsCategoryKeys: APIGatewayProxyHandler = async () => ({
   body: jsonStringifyPretty(getHackerNewsCategoryKeys()),
 });
 
-export const sourceUber: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called Uber endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.uber(options)),
-  };
-};
-
-export const sourceFacebook: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called Facebook endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.facebook(options)),
-  };
-};
-
-export const sourceNetflix: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called Netflix endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.netflix(options)),
-  };
-};
-
-export const sourceHackernews: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called HackerNews endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.hackerNews(options)),
-  };
-};
-
-export const sourceAndroidpolice: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called AndroidPolice endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.androidPolice(options)),
-  };
-};
-
-export const sourceDevto: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called Dev.to endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.devTo(options)),
-  };
-};
-
-export const sourceHighScalability: APIGatewayProxyHandler = async (event) => {
-  const options = getOptions(event);
-  logger.info(`Called High Scalability endpoint with options: ${sourceOptionsToString(options)}`);
-  return {
-    statusCode: 200,
-    headers,
-    body: jsonStringifyPretty(await parsedSourceHandler.highScalability(options)),
-  };
-};
-
 export const fetchRssSources: APIGatewayProxyHandler = async () => {
   logger.info('Called fetch RSS sources endpoint');
   return {
     statusCode: 200,
     headers,
     body: jsonStringifyPretty(getSources()),
+  };
+};
+
+export const fetchParsedSources: APIGatewayProxyHandler = async () => {
+  logger.info('Called fetch Parsed sources endpoint');
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(getAllParsedSources()),
   };
 };
 
@@ -119,6 +58,16 @@ export const fetchRssArticles: APIGatewayProxyHandler = async (event) => {
     statusCode: 200,
     headers,
     body: jsonStringifyPretty(await getArticles(event.pathParameters.key, options)),
+  };
+};
+
+export const fetchParsedArticles: APIGatewayProxyHandler = async (event) => {
+  const options = getOptions(event);
+  logger.info(`Called fetch Parsed Articles endpoint with options: ${sourceOptionsToString(options)}, key: ${event.pathParameters.key}`);
+  return {
+    statusCode: 200,
+    headers,
+    body: jsonStringifyPretty(await parsedSourceHandler.parse(event.pathParameters.key, options)),
   };
 };
 
