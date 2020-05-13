@@ -1,7 +1,8 @@
 import { APIGatewayProxyHandler, APIGatewayEvent } from 'aws-lambda';
 import 'source-map-support/register';
 import {
-  getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys, sourceOptionsToString, getAllParsedSources,
+  getHackerNewsCategoryKeys, getDevToCategoryKeys, getAllSourceKeys,
+  sourceOptionsToString, getAllParsedSources,
 } from './helpers/SourceHelper';
 import source from './sources/ParsedSourceHandler';
 import SourceOptionsBuilder from './helpers/SourceOptionsBuilder';
