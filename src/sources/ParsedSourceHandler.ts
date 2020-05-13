@@ -113,6 +113,35 @@ async function handleDynamicSourceRequest(sourceKey: string, url: string, transf
   return parsedArticles.slice(0, numberOfArticles);
 }
 
+function keyToSourceArchiveFunction(sourceKey: String, options: SourceOptions): Promise<Article[]> {
+  switch (sourceKey) {
+    case 'uber': {
+      return handleUberRequest(options);
+    }
+    case 'netflix': {
+      return handleNetflixRequest(options);
+    }
+    case 'dev-to': {
+      return handleDevToRequest(options);
+    }
+    case 'facebook': {
+      return handleFacebookRequest(options);
+    }
+    case 'highscalability': {
+      return handleHighScalibility(options);
+    }
+    case 'hackernews': {
+      return handleHackerNewsRequest(options);
+    }
+    case 'androidpolice': {
+      return handleAndroidPoliceRequest(options);
+    }
+    default: {
+      return Promise.resolve([]);
+    }
+  }
+}
+
 export default (serverless: boolean = false) => {
   serverlessMode = serverless;
   return {
@@ -123,5 +152,6 @@ export default (serverless: boolean = false) => {
     uber: (options: SourceOptions) => handleUberRequest(options),
     facebook: (options: SourceOptions) => handleFacebookRequest(options),
     netflix: (options: SourceOptions) => handleNetflixRequest(options),
+    parse: (key: string, options: SourceOptions) => keyToSourceArchiveFunction(key, options),
   };
 };

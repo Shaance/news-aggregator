@@ -7,7 +7,7 @@ import cron from 'node-cron';
 import cors from 'cors';
 import swaggerDocs from './config/SwaggerConfig';
 import {
-  getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys, sourceOptionsToString, getAllArchiveSources,
+  getDevToCategoryKeys, getHackerNewsCategoryKeys, getAllSourceKeys, sourceOptionsToString, getAllParsedSources,
 } from './helpers/SourceHelper';
 import config from './config/EnvConfig';
 import source from './sources/ParsedSourceHandler';
@@ -17,7 +17,8 @@ import { SourceOptions } from './@types/SourceOptions';
 import { getSources, getArticles } from './sources/RssSourceHandler';
 
 const app = express();
-const sourceApi = '/api/v1/source';
+const SOURCE_API_V2 = '/api/v2/source';
+const INFO_SOURCE_API_V1 = '/api/v1/info/source';
 const { port } = config;
 const { refreshFrequency } = config; // in minutes
 const parsedSourceHandler = source();
@@ -26,261 +27,6 @@ const logger = factory.getLogger('index');
 app.use(cors());
 app.use(compression());
 app.use('/api-docs', serve, setup(swaggerDocs(port)));
-
-/**
- * @swagger
- *
- * /api/v1/source/dev-to:
- *  get:
- *    parameters:
- *      - in: query
- *        name: category
- *        schema:
- *          type: string
- *        required: false
- *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/dev-to/categories'.
- *                     Unknown / no category results in fetching from dev.to homepage (no category)
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    description: Fetch articles from dev-to website
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/dev-to`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called Dev.to endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.devTo(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/netflix:
- *  get:
- *    parameters:
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from Netflix
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    description: Fetch articles from Netflix technology blog, should return an array of Article
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/netflix`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called Netflix endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.netflix(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/uber:
- *  get:
- *    parameters:
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from Uber
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    description: Fetch articles from Uber engineering blog, should return an array of Article
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          type: array
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/uber`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called Uber endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.uber(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/facebook:
- *  get:
- *    parameters:
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from Facebook engineering blog
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    description: Fetch articles from Facebook engineering blog, should return an array of Article
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          type: array
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/facebook`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called Facebook endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.facebook(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/androidpolice:
- *  get:
- *    parameters:
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from AndroidPolice
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          type: array
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/androidpolice`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called AndroidPolice endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.androidPolice(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/highscalability:
- *  get:
- *    parameters:
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from High Scalability
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          type: array
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/highscalability`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called Highscalability endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.highScalability(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
-
-/**
- * @swagger
- *
- * /api/v1/source/hackernews:
- *  get:
- *    parameters:
- *      - in: query
- *        name: category
- *        schema:
- *          type: string
- *        required: false
- *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/hackernews/categories'.
- *                     Unknown / no category results in fetching from best stories category
- *      - in: query
- *        name: forceRefresh
- *        schema:
- *          type: string
- *        required: false
- *        description: Cache version is returned by default. To force the refresh set this query param to true
- *      - in: query
- *        name: articleNumber
- *        schema:
- *          type: integer
- *        required: false
- *        description: Article number to fetch from HackerNews
- *    description: Fetch articles from Hackernews website
- *    responses:
- *      '200':
- *        description: Successful response
- *        schema:
- *          $ref: '#/definitions/ArticleArray'
- *      '500':
- *        description: Error while connecting to the website
- */
-app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
-  const options = getOptions(req);
-  logger.info(`Called HackerNews endpoint with options: ${sourceOptionsToString(options)}`);
-  parsedSourceHandler.hackerNews(options)
-    .then((articles) => res.json(articles))
-    .catch((error) => next(error));
-});
 
 /**
  * @swagger
@@ -297,7 +43,7 @@ app.get(`${sourceApi}/hackernews`, async (req, res, next) => {
  *      '500':
  *        description: Internal server error
  */
-app.get('/api/v1/info/source/dev-to/categories', (_, res) => {
+app.get(`${INFO_SOURCE_API_V1}/dev-to/categories`, (_, res) => {
   res.json(getDevToCategoryKeys());
 });
 
@@ -316,7 +62,7 @@ app.get('/api/v1/info/source/dev-to/categories', (_, res) => {
  *      '500':
  *        description: Internal server error
  */
-app.get('/api/v1/info/source/hackernews/categories', (_, res) => {
+app.get(`${INFO_SOURCE_API_V1}/hackernews/categories`, (_, res) => {
   res.json(getHackerNewsCategoryKeys());
 });
 
@@ -339,23 +85,100 @@ app.get('/api/v1/info/sources', (_, res) => {
   res.json(getAllSourceKeys());
 });
 
-app.get('/api/v2/source/archive', (_, res) => {
-  logger.info('Called source archive endpoint');
-  res.json(getAllArchiveSources());
+
+app.get(`${SOURCE_API_V2}/parsed`, (_, res) => {
+  logger.info('Called source parsed endpoint');
+  res.json(getAllParsedSources());
 });
 
-app.get('/api/v2/source/rss', (_, res) => {
+/**
+ * @swagger
+ *
+ * /api/v2/source/parsed/{sourceKey}:
+ *  get:
+ *    parameters:
+ *      - in: path
+ *        name: sourceKey
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Source you want to fetch from
+ *      - in: query
+ *        name: category
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/{sourceKey}/categories'.
+ *                     Unknown / no category results in fetching from dev.to homepage (no category) / best category for hackernews
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    description: Fetch articles from desired source
+ *    responses:
+ *      '200':
+ *        description: Successful response
+ *        schema:
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${SOURCE_API_V2}/parsed/:sourceKey`, async (req, res, next) => {
+  const options = getOptions(req);
+  logger.info(`Called ${req.params.sourceKey} endpoint with options: ${sourceOptionsToString(options)}`);
+  parsedSourceHandler.parse(req.params.sourceKey, options)
+    .then((articles) => res.json(articles))
+    .catch((error) => next(error));
+});
+
+app.get(`${SOURCE_API_V2}/rss`, (_, res) => {
   res.json(getSources());
 });
 
-app.get('/api/v2/source/rss/:key', (req, res, next) => {
-  logger.info(`Called source endpoint with params: ${req.params.key?.toString()}`);
-  getArticles(req.params.key, getOptions(req))
+/**
+ * @swagger
+ *
+ * /api/v2/source/rss/{sourceKey}:
+ *  get:
+ *    parameters:
+ *      - in: path
+ *        name: sourceKey
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Source you want to fetch from
+ *      - in: query
+ *        name: category
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/{sourceKey}/categories'.
+ *                     Unknown / no category results in fetching from dev.to homepage (no category) / best category for hackernews
+ *      - in: query
+ *        name: forceRefresh
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: Cache version is returned by default. To force the refresh set this query param to true
+ *    description: Fetch articles from desired source (RSS or parsed if source is supported)
+ *    responses:
+ *      '200':
+ *        description: Successful response
+ *        schema:
+ *          $ref: '#/definitions/ArticleArray'
+ *      '500':
+ *        description: Error while connecting to the website
+ */
+app.get(`${SOURCE_API_V2}/rss/:sourceKey`, (req, res, next) => {
+  logger.info(`Called source endpoint with params: ${req.params.sourceKey?.toString()}`);
+  getArticles(req.params.sourceKey, getOptions(req))
     .then((articles) => {
       if (articles?.length > 0) {
         res.json(articles);
       } else {
-        const notFoundMessage = `Unknown source or no article for ${req.params.key?.toString()} source.`;
+        const notFoundMessage = `Unknown source or no article for ${req.params.sourceKey?.toString()} source.`;
         logger.info(notFoundMessage);
         res.status(204).send(notFoundMessage);
       }

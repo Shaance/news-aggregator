@@ -6,14 +6,14 @@ import { load } from 'cheerio';
 import Parser, { Output } from 'rss-parser';
 import { Source } from '../@types/Source';
 import { Article } from '../@types/Article';
-import sourceArchive from './ParsedSourceHandler';
+import parsedSourceHandler from './ParsedSourceHandler';
 import { getAllSourceKeys } from '../helpers/SourceHelper';
 import { SourceOptions } from '../@types/SourceOptions';
 import factory from '../config/ConfigLog4j';
 
 const logger = factory.getLogger('RssSourceHandler');
 const rssParser = new Parser();
-const ParsedSourceHandler = sourceArchive();
+const ParsedSourceHandler = parsedSourceHandler();
 
 export function getSources(): Source[] {
   const data = fs.readFileSync(path.join('res', 'rss', 'feeds.opml'), 'UTF-8');
@@ -38,7 +38,7 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
     const archiveSources = getAllSourceKeys();
     if (archiveSources.includes(key)) {
       logger.info('Archive endpoint detection will use ParsedSourceHandler');
-      return keyToSourceArchiveFunction(key, options);
+      return ParsedSourceHandler.parse(key, options);
     }
 
     const resolvedSource = getSources()
@@ -65,30 +65,4 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
     }
   }
   return articles;
-}
-
-function keyToSourceArchiveFunction(sourceKey: String, options: SourceOptions) {
-  switch (sourceKey) {
-    case 'uber': {
-      return ParsedSourceHandler.uber(options);
-    }
-    case 'netflix': {
-      return ParsedSourceHandler.netflix(options);
-    }
-    case 'dev-to': {
-      return ParsedSourceHandler.devTo(options);
-    }
-    case 'facebook': {
-      return ParsedSourceHandler.facebook(options);
-    }
-    case 'highscalability': {
-      return ParsedSourceHandler.highScalability(options);
-    }
-    case 'hackernews': {
-      return ParsedSourceHandler.hackerNews(options);
-    }
-    default: {
-      return ParsedSourceHandler.androidPolice(options);
-    }
-  }
 }

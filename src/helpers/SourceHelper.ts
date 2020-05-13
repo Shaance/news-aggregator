@@ -57,7 +57,7 @@ export function getAllSourceKeys() {
   ];
 }
 
-export function getAllArchiveSources() : Source[] {
+export function getAllParsedSources() : Source[] {
   return [
     {
       key: 'dev-to', title: 'Dev.to', feedUrl: '', url: 'https://dev.to',
