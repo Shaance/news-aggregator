@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { load } from 'cheerio';
 import Parser, { Output } from 'rss-parser';
+import grabity from 'grabity';
 import { Source } from '../@types/Source';
 import { Article } from '../@types/Article';
 import parsedSourceHandler from './ParsedSourceHandler';
@@ -71,14 +72,27 @@ async function parseRssArticleFromUrl(feedUrl: string, sourceKey: string): Promi
   const parsedItem: Output = await rssParser.parseURL(feedUrl);
   const sourceIconUrl = parsedItem.image?.link;
   // TODO add properties from parser.Output to Article type
-  return parsedItem.items.map((item) => ({
-    title: item.title,
-    url: item.link,
-    author: item.creator,
-    date: new Date(item.isoDate),
-    source: sourceKey,
-    sourceIconUrl,
-    contentSnippet: item.contentSnippet,
-    categories: item.categories,
-  }));
+
+  return Promise.all(
+    parsedItem.items.map((item) => {
+      const response = grabity.grabIt(item.link);
+      return response.then((link) => {
+        let image;
+        if (link.image) {
+          image = link.image;
+        }
+        return {
+          title: item.title,
+          url: item.link,
+          author: item.creator,
+          date: new Date(item.isoDate),
+          source: sourceKey,
+          sourceIconUrl,
+          contentSnippet: item.contentSnippet,
+          categories: item.categories,
+          imageUrl: image,
+        };
+      });
+    }),
+  );
 }
