@@ -8,6 +8,8 @@ export default class SourceOptionsBuilder {
 
   private category: string;
 
+  private feedUrl: string;
+
   constructor(source?: SourceOptions) {
     if (source) {
       if (source.category) {
@@ -20,6 +22,11 @@ export default class SourceOptionsBuilder {
 
   withArticleNumber(articles: number) {
     this.numberOfArticles = articles;
+    return this;
+  }
+
+  withFeedUrl(feedUrl: string) {
+    this.feedUrl = feedUrl;
     return this;
   }
 
@@ -38,6 +45,7 @@ export default class SourceOptionsBuilder {
       forceRefresh: this.forceRefresh,
       numberOfArticles: this.numberOfArticles,
       category: this.category,
+      feedUrl: this.feedUrl,
     };
   }
 }

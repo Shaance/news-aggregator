@@ -157,6 +157,12 @@ app.get(`${SOURCE_API_V2}/rss`, (_, res) => {
  *        description: Category to fetch from, existing categories can be fetch by using '/api/v1/info/source/{sourceKey}/categories'.
  *                     Unknown / no category results in fetching from dev.to homepage (no category) / best category for hackernews
  *      - in: query
+ *        name: feedUrl
+ *        schema:
+ *          type: string
+ *        required: false
+ *        description: provide your own URI encoded feedUrl instead of using the ones provided by the API
+ *      - in: query
  *        name: forceRefresh
  *        schema:
  *          type: string
@@ -172,7 +178,7 @@ app.get(`${SOURCE_API_V2}/rss`, (_, res) => {
  *        description: Error while connecting to the website
  */
 app.get(`${SOURCE_API_V2}/rss/:sourceKey`, (req, res, next) => {
-  logger.info(`Called source endpoint with params: ${req.params.sourceKey?.toString()}`);
+  logger.info(`Called source endpoint with params: [sourceKey: ${req.params.sourceKey?.toString()}, feedUrl: ${req.query.feedUrl}]`);
   getArticles(req.params.sourceKey, getOptions(req))
     .then((articles) => {
       if (articles?.length > 0) {
@@ -208,6 +214,12 @@ function setCategory(req, builder: SourceOptionsBuilder) {
   }
 }
 
+function setFeedUrl(req, builder: SourceOptionsBuilder) {
+  if (req.query.feedUrl) {
+    builder.withFeedUrl(req.query.feedUrl);
+  }
+}
+
 function setForceRefresh(req, builder: SourceOptionsBuilder) {
   if (req.query.forceRefresh === 'true') {
     builder.withForceFreshFlag();
@@ -219,29 +231,33 @@ function getOptions(req): SourceOptions {
   setCategory(req, builder);
   setNumberOfArticles(req, builder);
   setForceRefresh(req, builder);
+  setFeedUrl(req, builder);
   return builder.build();
 }
 
 async function updateAllSources() {
   const baseOptionsBuilder = new SourceOptionsBuilder().withForceFreshFlag();
-  parsedSourceHandler.devTo(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  getDevToCategoryKeys().forEach((category) => {
-    parsedSourceHandler.devTo(
-      new SourceOptionsBuilder(baseOptionsBuilder.build())
-        .withCategory(category)
-        .build(),
-    ).catch((err) => logger.error(err));
+  getAllParsedSources().forEach((parsedSource) => {
+    const sourceKey = parsedSource.key;
+    if (sourceKey === 'dev-to') {
+      getDevToCategoryKeys().forEach((category) => {
+        parsedSourceHandler.devTo(
+          new SourceOptionsBuilder(baseOptionsBuilder.build())
+            .withCategory(category)
+            .build(),
+        ).catch((err) => logger.error(err));
+      });
+    } else if (sourceKey === 'hackernews') {
+      getHackerNewsCategoryKeys().forEach((category) => {
+        parsedSourceHandler.hackerNews(
+          new SourceOptionsBuilder(baseOptionsBuilder.build())
+            .withCategory(category)
+            .build(),
+        ).catch((err) => logger.error(err));
+      });
+    } else {
+      parsedSourceHandler.parse(sourceKey, baseOptionsBuilder.build())
+        .catch((err) => logger.error(err));
+    }
   });
-  parsedSourceHandler.netflix(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  parsedSourceHandler.uber(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  parsedSourceHandler.androidPolice(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  getHackerNewsCategoryKeys().forEach((category) => {
-    parsedSourceHandler.hackerNews(
-      new SourceOptionsBuilder(baseOptionsBuilder.build())
-        .withCategory(category)
-        .build(),
-    ).catch((err) => logger.error(err));
-  });
-  parsedSourceHandler.facebook(baseOptionsBuilder.build()).catch((err) => logger.error(err));
-  parsedSourceHandler.highScalability(baseOptionsBuilder.build()).catch((err) => logger.error(err));
 }
