@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { load } from 'cheerio';
 import Parser, { Output } from 'rss-parser';
+import grabity from 'grabity';
 import { Source } from '../@types/Source';
 import { Article } from '../@types/Article';
 import parsedSourceHandler from './ParsedSourceHandler';
@@ -49,16 +50,28 @@ export async function getArticles(key: string, options: SourceOptions): Promise<
         const parsedItem: Output = await rssParser.parseURL(resolvedSource[0].feedUrl);
         const sourceIconUrl = parsedItem.image?.link;
         // TODO add properties from parser.Output to Article type
-        articles = parsedItem.items.map((item) => ({
-          title: item.title,
-          url: item.link,
-          author: item.creator,
-          date: new Date(item.isoDate),
-          source: resolvedSource[0].key,
-          sourceIconUrl,
-          contentSnippet: item.contentSnippet,
-          categories: item.categories,
-        }));
+        articles = await Promise.all(
+          parsedItem.items.map((item) => {
+            const response = grabity.grabIt(item.link);
+            return response.then((link) => {
+              let image;
+              if (link.image) {
+                image = link.image;
+              }
+              return {
+                title: item.title,
+                url: item.link,
+                author: item.creator,
+                date: new Date(item.isoDate),
+                source: resolvedSource[0].key,
+                sourceIconUrl,
+                contentSnippet: item.contentSnippet,
+                categories: item.categories,
+                imageUrl: image,
+              };
+            });
+          }),
+        );
       } catch (err) {
         logger.error(`Error while fetching ${resolvedSource}: ${err}`, err);
       }
