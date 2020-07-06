@@ -16,7 +16,7 @@ jobs:
       - name: install depedencies
         run: npm ci
       - name: serverless install
-        run: npm i -g serverless@1.67.3
+        run: npm i -g serverless@1.74.1
       - name: serverless deploy
         run: serverless deploy
         env:
