@@ -114,7 +114,7 @@ dist
 .pnp.*
 out/
 yarn.lock
-lib
+/lib
 *zip
 .webpack
 .build
